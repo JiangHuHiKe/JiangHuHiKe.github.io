@@ -42,6 +42,14 @@ FLUTTER_ENGINE=你存放引擎代码的路径/engine/src
 LOCAL_ENGINE=ios_debug_sim_unopt    
 
 
+编译好之后的源码：    
+<img src='/images/flutter/flutter4.png' style="width:600px;">
+<img src='/images/flutter/flutter3.png' style="width:600px;">
+
+
+引擎挂载不成功原因？    
+观察工程配置项文件内的文件路径是否正确      
+如果不正确，可以使用Androidstudio重新操作一遍    
 
 
 
