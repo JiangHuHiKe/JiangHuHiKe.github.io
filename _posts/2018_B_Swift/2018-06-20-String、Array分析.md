@@ -163,12 +163,12 @@ func arrayAnaly() -> Void {
 
 **一、内存分布**
 
-<img src="/images/Swift/swift13_0.png" alt="img">
+<img src="/images/swift/swift13_0.png" alt="img">
 
 
 **二、启动过程**
 
-<img src="/images/Swift/swift13_1.png" alt="img">
+<img src="/images/swift/swift13_1.png" alt="img">
 
 
 
