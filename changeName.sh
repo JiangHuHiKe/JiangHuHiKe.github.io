@@ -2,10 +2,10 @@
 #!/bin/bash
 
 # 指定目录
-#directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2024_A_Harmony"
-directory="/Users/lxy/LXYFile/ResourceInGithub/JiangHuHiKe/_posts/2024_A_Harmony"
+directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2024_A_Harmony"
+#directory="/Users/lxy/LXYFile/ResourceInGithub/JiangHuHiKe/_posts/2024_A_Harmony"
 
-start_date="2024-02-02"
+start_date="2024-02-20"
 current_date=$(date -jf "%Y-%m-%d" "$start_date" "+%Y-%m-%d")
 
 # end_date=$(date "+%Y-%m-%d")
