@@ -316,8 +316,10 @@ console.log(arr instanceof Object); // true
 
 #### **一、this讲解**   
 
-普通函数内才有this:      
-普通函数this指向调用者   
+<span style="color:red;font-weight:bold;">只有普通函数内才有this:</span>          
+普通函数this指向调用者:Obj.testFunc(),指向Obj       
+当函数直接调用时，this指向全局对象（在浏览器中是window，在Node.js中是global）。在严格模式下，this会是undefined。     
+testFunc()，指向全局对象。        
 
 ```js
 function generalFn() {
@@ -330,6 +332,7 @@ generalFn()
 箭头函数：          
 箭头函数中并不存在 this    
 箭头函数会默认帮我们绑定外层 this 的值     
+**箭头函数的this是在定义时确定，捕获的定义时上下文中的this**    
 适用：需要使用上层this的地方      
 不适用：    
 构造函数/原型函数/字面量对象中函数/dom事件函数     
@@ -351,10 +354,32 @@ person.walk()
 person.eat()
 ```
 
+```js
+class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+
+  start() {
+    setInterval(() => {
+      this.seconds++;
+      console.log(this.seconds);
+    }, 1000);
+  }
+}
+
+const timer = new Timer();
+timer.start();
+```
+
+在这个例子中，setInterval的回调函数是一个箭头函数，因此this指向Timer实例，而不是setInterval的上下文(不是setInterval内的调用者)。
+
+<span style="color:red;font-weight:bold;">箭头函数的this指向不变，避免了传统函数中this指向不确定的问题</span>   
+
 
 #### **二、修改this指向**
 
-三个函数：call、apply、bind     
+三个函数：call、apply、bind(对箭头函数无效)     
 
 ```js
 let person = { name: '乔治', age: 18 }
