@@ -70,7 +70,8 @@ func goToWork(at time:String){} // goToWork(at:"10:00")
 
 #### 三、数据类型
 
-##### 1、String
+**1、String** 
+
 swift中的字符串类型是结构体，是值类型<br>
 值类型的特点是：将a赋值给b之后，对b进行修改不会影响a
 
@@ -91,7 +92,7 @@ str.append("ABCDEF")
 
 ```
 
-##### 2、Array
+**2、Array**    
 Swift中的数组也是结构体，是值类型
 ```swift
 var arr:Array = [1,2,3,4]
@@ -105,10 +106,41 @@ print("arr1 = \(arr1), arr = \(arr)")
 ```
 <span style="color:red;fontWeight:bold">PS:Array在底层其实是引用类型 但实际使用时是结构体<br> 行为上是值类型 本质是引用类型只是苹果隐藏了这一层</span>
 
-##### 3、Dictionary 和 Set 也是结构体类型，也是值类型
+**3、Dictionary 和 Set 也是结构体类型，也是值类型**
 
-##### 4、元组是一个复合类型，也是值类型
- 
+**4、元组是一个复合类型，也是值类型**
+
+
+#### 四、Any AnyObject AnyClass  
+
+Any 任意类型：对象类型，int类型等    
+
+AnyObject 任意对象类型：实例对象、类对象   
+
+AnyClass 任意类对象类型  
+
+AnyObject.type 相当于 AnyClass 任意类对象类型
+
+Person 比如 let p: Person = Person();  用于指定实例对象p的类型
+
+Person.type 比如 let pClass : Person.type = Person.self; 用于指定类对象pClass的类型
+
+注意： 
+Person.self 是类对象，    
+Person.type 是指定类型的(类对象的类型)，   
+Person 是指定类型的(实例对象的类型)    
+
+
+#### 五、self 与 Self
+
+小写的self
+在实例方法中指代实例对象      
+在静态方法中指代类对象     
+
+大写的Self    
+1、作为返回值，用于指代当前类型   
+2、在静态方法中指代类对象， Self.age静态属性 self.age也是静态属性       
+
 ## <a id="content2">闭包</a>
 <!--===============================================================================================-->
 
