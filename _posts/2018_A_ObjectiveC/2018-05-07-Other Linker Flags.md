@@ -8,7 +8,8 @@ tag: Objective-C
 
 ## 目录
 - [一、other linker flags](#content1)
-- [二、-Objc/-all_load/-force_load](#content1)
+- [二、-Objc/-all_load/-force_load](#content2)
+- [三、补充](#content3)
 
 
 
@@ -74,6 +75,33 @@ Other Linker Flags 是 Xcode 中的一个编译选项，用于在编译项目时
 <span style="color:red;font-weight:bold;">重要：如果一个库中某个类或者分类的方法没有被调用或者找不到，可以考虑是没有配置-ObjC的问题</span>     
 <span style="color:gray;font-size:12px;font-style:italic;">提示：在研究swift混编时，通过协议的方式来达到不暴露oc代码给外部模块的目的，在oc的load方法内向中间类zoo注册类，发现oc的load方法不调用，始终找不到原因。后来配置了-Objc后解决了。xy：因为通过协议的方式oc类没有被直接使用所以链接时没有被加载进来</span>
 
+我们可以通过otool命令来查看编译完成后的可执行文件中，是否链接了相关的符号        
+```text
+otool -ov myApp | grep "Cat"
+```
+Cat是静态库中没有被直接使用的一个OC类，并且应用程序InvocationDemo中也没有配置-ObjC时          
+```text
+otool -ov InvocationDemo | grep "Cat"
+```
+
+应用程序InvocationDemo中配置-ObjC时     
+```text
+╰─ otool -ov InvocationDemo | grep "Cat"
+0000000100008358 0x10000d7f0 _OBJC_CLASS_$_Cat
+    isa        0x10000d818 _OBJC_METACLASS_$_Cat
+    data       0x10000d218 __OBJC_CLASS_RO_$_Cat
+        name           0x100006fb3 Cat
+        baseMethods    0x100005ac8 __OBJC_$_INSTANCE_METHODS_Cat
+        baseProtocols  0x10000d1b8 __OBJC_CLASS_PROTOCOLS_$_Cat
+    data       0x10000d1d0 __OBJC_METACLASS_RO_$_Cat
+        name           0x100006fb3 Cat
+        baseMethods    0x100005ae0 __OBJC_$_CLASS_METHODS_Cat
+        baseProtocols  0x10000d1b8 __OBJC_CLASS_PROTOCOLS_$_Cat
+0000000100008400 0x10000d7f0 _OBJC_CLASS_$_Cat
+0000000100008380 0x10000d130 __OBJC_$_CATEGORY_NSString_$_MyCategory
+    name      0x100006fa8 MyCategory
+    instanceMethods 0x100005b88 __OBJC_$_CATEGORY_INSTANCE_METHODS_NSString_$_MyCategory
+```
 
 #### **-all_load**    
 -all_load 是一个更激进的标志，它会告诉链接器加载静态库中的所有对象文件，不论它们是否包含 Objective-C 代码。也就是说，不仅是 Objective-C 类和类别，所有的符号都会被加载。
@@ -103,6 +131,12 @@ Other Linker Flags 是 Xcode 中的一个编译选项，用于在编译项目时
 如果你只需要对特定库强制加载，使用 -force_load，它比 -all_load 更加安全和灵活。   
 理解这些标志之间的差异，能够帮助你在项目中更有效地使用静态库，避免常见的链接错误。    
 
+
+## <a id="content3">三、补充</a>
+
+other swift flags 是给swift的编译器传递参数的   
+other linker flags 是给链接器传递参数的       
+OTHER_SWIFT_FLAGS 是针对 Swift 编译器的编译标志，而 OTHER_LDFLAGS 是针对链接器的链接标志。两者分别用于不同的编译阶段和工具（编译器 vs 链接器），因此用途和效果完全不同。
 
 
 ----------
