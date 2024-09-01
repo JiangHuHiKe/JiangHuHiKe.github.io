@@ -123,6 +123,31 @@ func stringAnaly(){
 
 总的来说，Swift 根据字符串的长度和内容智能地选择存储方式，以便在性能和内存使用之间取得平衡。
 
+
+#### **三、字符串和子串的关系**    
+
+```text
+let greeting = "Hello,world!"
+let index = greeting.firstIndex(of:",")??greeting.endIndex
+let beginning = greeting[..<index]
+//beginning的值为“Hello”
+//把结果转化为String以便长期存储
+let newString = String(beginning)
+```
+<img src="/images/swift/swift_10.webp" style="width:500px;">
+
+Swift编译器优化了字符串使用的资源，实际上拷贝只会在确定需要的时候才进行
+```text
+    var str = "0123456789abcdef"
+    var str1 = str
+    print(str == str1) // true
+    
+    str += "ghi"
+    print(str)//0123456789abcdefghi
+    print(str1)//0123456789abcdef
+    print(str == str1)//false
+```
+
 <!-- ************************************************ -->
 ## <a id="content2"></a>数组分析
 
