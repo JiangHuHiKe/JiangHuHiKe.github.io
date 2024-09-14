@@ -16,6 +16,7 @@ tag: Objective-C
 - [如何配置](#content2) 
 - [原理分析](#content3) 
 - [微信SDK集成](#content4) 
+- [如何通过UniversalLinks打开app](#content5) 
 
 
 
@@ -98,7 +99,7 @@ lxy：在xcode配置的applinks:xdf.fzzqft.com可以帮助找到文件，并进�
 
 lxy：微信SDK，需要在微信开放平台填写app的universal link,在sdk初始化的时候universal link也需要作为参数传入，只有拿到universal link微信才能调起我们的app.在我们的APP调起微信的时候会将universal link作为参数传给微信，微信拿到之后才能调起我们的app.
 
-<img src="/images/objectC/objc24.png" alt="img">
+<img src="/images/objectC/objc24.png" alt="img" style="width:80%">
 
 
 
@@ -113,7 +114,59 @@ lxy：微信SDK，需要在微信开放平台填写app的universal link,在sdk�
 
 <img src="/images/objectC/objc20.jpeg" alt="img">
 
- 
+ <!-- ************************************************ -->
+## <a id="content5">如何通过UniversalLinks打开app</a>
+
+在另外一个APP中调用
+```text
+- (IBAction)callDF:(id)sender {
+    // Objective-C 代码，用于跳转到目标 App 的 Universal Link
+    NSURL *universalLinkURL = [NSURL URLWithString:@"https://xdf.fzzqft.com/redirectApp/abc?key=value"];
+    NSDictionary *option = @{};//打开相关的配置项
+    // 判断系统是否能够处理这个 URL
+    if ([[UIApplication sharedApplication] canOpenURL:universalLinkURL]) {
+        [[UIApplication sharedApplication] openURL:universalLinkURL options:option completionHandler:^(BOOL success) {
+            if (success) {
+                NSLog(@"成功跳转到目标 App");
+            } else {
+                NSLog(@"跳转失败");
+            }
+        }];
+    } else {
+        // 无法打开 Universal Link，可能目标 App 未安装
+        NSLog(@"无法跳转，目标 App 可能未安装");
+    }
+}
+```
+
+当app被调起时会来到下面的回调方法,这个方法的作用有以下几个     
+Universal Links: 当用户通过点击一个支持 Universal Links 的 URL 来打开应用时，这个方法会被调用。    
+Handoff: 用于在不同的 Apple 设备之间传递任务或活动。当用户在一个设备上执行某个操作时，另一个设备（比如 iPhone 和 iPad）能够继续相应的任务。   
+SiriKit: 当通过 Siri 触发了应用相关的操作时。   
+Spotlight 搜索: 当用户通过 Spotlight 搜索打开你的应用时，也会触发该方法。    
+
+```text
+- (BOOL)application:(UIApplication *)application
+continueUserActivity:(NSUserActivity *)userActivity
+restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>> * __nullable restorableObjects))restorationHandler {
+
+    // 检查是否为网页 URL 类型的活动：Universal Links打开
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSURL *incomingURL = userActivity.webpageURL;
+        
+        // 处理 URL，比如根据 URL 执行页面导航
+        if ([incomingURL.host isEqualToString:@"example.com"]) {
+            NSLog(@"Opened with Universal Link: %@", incomingURL.absoluteString);
+            
+            // 执行相应的导航逻辑
+            // 比如将 URL 传递给一个特定的 ViewController
+            
+            return YES; // 表示应用成功处理了该活动
+        }
+    }
+    return NO; // 表示应用无法处理该活动
+}
+```
 
 
 
