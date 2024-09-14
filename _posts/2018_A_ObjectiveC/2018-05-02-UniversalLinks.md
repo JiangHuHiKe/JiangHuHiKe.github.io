@@ -36,13 +36,20 @@ Universal Link是Apple在WWDC上提出的iOS9的新特性之一；
 <!-- ************************************************ -->
 ## <a id="content2">如何配置</a>
 
-第一步：开发者网站配置    
+第一步：开发者网站配置      
 找到”Associated Domains“选项，打开勾选；   
 
-第二步：配置服务器         
-在host域名对应的服务器.well-known目录下面新建一个json文件，命名为apple-app-site-association，不需要.json后缀    
-测试办法：例如你的{host}是mcrm.founder.com，那浏览器打开https://mcrm.founder.com/apple-app-site-association可以下载该文件即可    
-   
+
+第二步：配置Xcode Project      
+打开你的iOS工程，在project → Signing & Capabilities → + Capability，添加“Associated Domains”      
+添加配置，**applinks:xdf.fzzqft.com**   
+
+
+第三步：配置服务器   
+参考官方文档：<a href="https://developer.apple.com/documentation/xcode/supporting-associated-domains">https://developer.apple.com/documentation/xcode/supporting-associated-domains</a>      
+<img src="/images/objectC/objc23.png" alt="img">    
+在host域名对应的服务器.well-known目录下面新建一个json文件，命名为apple-app-site-association，不需要.json后缀          
+测试办法：例如你的{host}是xdf.fzzqft.com，那浏览器打开https://xdf.fzzqft.com/apple-app-site-association可以下载该文件即可      
 
 ```json
 {
@@ -65,21 +72,19 @@ Universal Link是Apple在WWDC上提出的iOS9的新特性之一；
 ```
 
 
-第三步：配置Xcode Project    
-
-打开你的iOS工程，在project → Signing & Capabilities → + Capability，添加“Associated Domains”   
-添加配置，**applinks:mcrm.founder.com**   
-
-
 第四步：测试UL链接    
 
-根据服务器配置目录打开 https://mcrm.founder.com/apple-app-site-association 或者 https://mcrm.founder.com/apple-app-site-association，   
-检查是否包含应用Bundle ID，   可以参考微信的apple-app-site-association：   
+根据服务器配置目录打开    
+<a href="https://xdf.fzzqft.com/.well-known/apple-app-site-association">https://xdf.fzzqft.com/.well-known/apple-app-site-association</a>           
+<a href="https://xdf.fzzqft.com/apple-app-site-association">https://xdf.fzzqft.com/apple-app-site-association</a>      
+
+检查是否包含应用Bundle ID，可以参考微信的apple-app-site-association：        
 <a href="https://help.wechat.com/apple-app-site-association">https://help.wechat.com/apple-app-site-association</a>
 
-也可以参考这个
-<a href="https://xdf.fzzqft.com/redirectApp/">https://xdf.fzzqft.com/redirectApp/</a>
+也可以参考这个     
+<a href="https://app.foundersc.com/.well-known/apple-app-site-association">https://app.foundersc.com/.well-known/apple-app-site-association</a>
 
+在Safari浏览器内输入：https://xdf.fzzqft.com/redirectApp/xx 查看是否可以调起App  
 
 
 <!-- ************************************************ -->
@@ -87,10 +92,14 @@ Universal Link是Apple在WWDC上提出的iOS9的新特性之一；
 
 准确来说，iOS系统是在安装app应用的过程中向服务器发起请求，如果获得数据则会导入系统   
 系统会优先请求：https://{host}/.well-known/apple-app-site-association    
-如果第1步没请求成功，才会请求：https://{host}/apple-app-site-association     
-lxy：在xcode配置的applinks:mcrm.founder.com可以帮助找到文件，并进行下载，文件拿到后将数据写入系统，别的app就可以调起当前的app。        
+如果第1步没请求成功，才会请求：https://{host}/apple-app-site-association  
 
-lxy：微信SDK，需要在微信开放平台填写app的universal link,在sdk初始化的时候universal link也需要作为参数传入，只有拿到universal link微信才能调起我们的app    
+lxy：在xcode配置的applinks:xdf.fzzqft.com可以帮助找到文件，并进行下载，文件拿到后将数据写入系统，别的app就可以调起当前的app。        
+
+lxy：微信SDK，需要在微信开放平台填写app的universal link,在sdk初始化的时候universal link也需要作为参数传入，只有拿到universal link微信才能调起我们的app.在我们的APP调起微信的时候会将universal link作为参数传给微信，微信拿到之后才能调起我们的app.
+
+<img src="/images/objectC/objc24.png" alt="img">
+
 
 
 
