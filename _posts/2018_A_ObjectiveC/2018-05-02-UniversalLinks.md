@@ -139,7 +139,7 @@ lxy：微信SDK，需要在微信开放平台填写app的universal link,在sdk�
 }
 ```
 
-当app被调起时会来到下面的回调方法,这个方法的作用有以下几个     
+**当app被调起时会来到下面的回调方法,这个方法的作用有以下几个：**         
 Universal Links: 当用户通过点击一个支持 Universal Links 的 URL 来打开应用时，这个方法会被调用。    
 Handoff: 用于在不同的 Apple 设备之间传递任务或活动。当用户在一个设备上执行某个操作时，另一个设备（比如 iPhone 和 iPad）能够继续相应的任务。   
 SiriKit: 当通过 Siri 触发了应用相关的操作时。   
