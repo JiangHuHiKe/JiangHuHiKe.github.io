@@ -56,7 +56,7 @@ tag: Overview
 
 #### kvo
 
-派生出一个新的类<br>
+在<span style="color:red;font-weight:bold;">运行时</span>会派生出一个新的类<br>
 kvo_person<br>
 重写set方法<br>
 
@@ -115,6 +115,9 @@ void _NSSetIntValueAndNotify(){
 
 @end
 ```
+
+**为什么要移除观察者？**    
+比如VC是person.name的观察者，当VC被销毁时，需要[person removeObserver:self forKeyPath:@"name"];否则当name属性发生变化时，会给vc发送消息，但vc已经释放，这个时候会报EXC_BAD_ACCESS错误。
 
 <!-- ************************************************ -->
 ## <a id="content1.3">1.3Category</a>
