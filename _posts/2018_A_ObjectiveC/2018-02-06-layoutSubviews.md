@@ -36,7 +36,7 @@ tag: Objective-C
 
 子类可以根据需要重写这个方法，以执行更精确的子视图布局。
 
-<span style="color:red;font-weight:bold;">只有当子视图的自动调整大小和基于约束的行为不能提供您想要的行为时，才应该重写此方法。</span>
+<span style="color:red;font-weight:bold;">initWithFrame:是在初始化时拿到的frame，如果初始化完成之后，父view的size发生了变化，需要对当前view及其子view重新布局就需要重写layoutSubviews方法，并在其中根据情况进行布局</span>
 
 你可以使用你的实现直接设置子视图的框架矩形。
 
