@@ -46,6 +46,7 @@ tag: Objective-C
 
 如果您想立即更新视图的布局，请调用layoutIfNeeded方法。
 
+在此说一下autoLayout和layoutsubviews的关系：<br><span style="color:red;font-weight:bold;">autoLayout是一套约束系统，根据约束计算好frame后会调用layoutSubViews:方法进行布局</span>
 
 <!-- ************************************************ -->
 ## <a id="content2">调用时机</a>
@@ -61,7 +62,7 @@ tag: Objective-C
 
 思考：单纯的移动不会引起布局的递归更改，但改变大小有可能引起布局的递归更改，是否是这个原因？
 
-<span style="color:red;font-weight:bold">仅仅改变父视图或子视图的位置并不会引起整个视图层次结构的重新布局,所以不会调用layoutsubviews。简单点说就是位置改变还不至于引起重新布局</span>    
+<span style="color:red;font-weight:bold">仅仅改变父视图或子视图的位置并不会引起整个视图层次结构的重新布局,所以不会调用layoutsubviews。简单点说就是位置改变还不至于引起重新布局。如果这个时候想触发重新布局，可以调用下面介绍的两个方法</span>    
 
 
 <!-- ************************************************ -->
