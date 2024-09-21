@@ -961,7 +961,7 @@ NSLog(@"drawMoney-process = %ld",process);//它只表示成功发送信号的次
         [self test1];//主队列排队
     });
     
-    
+    // 本质是定时器，依赖runloop，被放入主队列的时间有可能会延迟
     [self performSelector:@selector(test2) withObject:nil afterDelay:0];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -1046,7 +1046,7 @@ NSLog(@"drawMoney-process = %ld",process);//它只表示成功发送信号的次
 
 #### **九、NSOperation**   
 
-NSOperation是对GCD的封装，更加面向对象话       
+NSOperation是对GCD的封装，更加面向对象       
 ```objc
 //queue：异步并发队列的封装  
 NSOperationQueue * concurrentQueue = [[NSOperationQueue alloc] init];
