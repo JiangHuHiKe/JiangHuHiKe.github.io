@@ -4,13 +4,15 @@
 directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2015_B_CodeEncrypt"
 # directory="/Users/lxy/LXYFile/ResourceInGithub/JiangHuHiKe/_posts/2024_A_Harmony"
 
+# 遍历文件夹下文件时，跳过前面几个文件的个数
+skipCount=0
+
+# 开始日期
 start_date="2015-06-01"
 current_date=$(date -jf "%Y-%m-%d" "$start_date" "+%Y-%m-%d")
 
 # 遍历每个文件
 find "$directory" -type f -name "????-??-??*.md" -print0 | sort -z | {
-    # 跳过文件个数
-    skipCount=0
 
     # 记录遍历过的文件个数
     counter=0
