@@ -11,16 +11,37 @@ tag: Overview
 
 ## 目录
 
+- [1.0响应者链](#content1.0)  
 - [1.1对象的本质](#content1.1)  
 - [1.2kvc/kvo](#content1.2)  
 - [1.3Category](#content1.3)   
 - [1.4block](#content1.4)  
 - [1.5数据存储](#content1.5)  
+- [1.6内存管理](#content1.6)  
+- [1.7编码及加解密](#content1.7)  
 - [2.1Runtime](#content2.1)  
 - [2.2多线程](#content2.2)  
 - [2.3Runloop](#content2.3)  
 - [2.4Autorelease](#content2.4)  
-- [2.5WebView](#content2.5)  
+- [3.1WebView](#content3.1)  
+
+
+<!-- ************************************************ -->
+## <a id="content1.0">1.0响应者链</a>
+
+<img src="/images/objectC/objc_2.png" alt="img">
+<img src="/images/objectC/objc_3.png" alt="img">
+
+**无法响应的情况**    
+1.Alpha=0、hidden=YES、子视图超出父视图的情况、userInteractionEnabled=NO 视图会被忽略，不会调用hitTest    
+2.父视图被忽略后其所有子视图也会被忽略，所以View3上的button不会有点击反应    
+3.出现视图无法响应的情况，可以考虑上诉情况来排查问题    
+
+**应用示例**     
+限定点击区域     
+给定一个显示为圆形的视图，实现只有在点击区域在圆形里面才视为有效。   
+我们可以重写View的pointInside方法来判断点击的点是否在圆内，也就是判断点击的点到圆心的距离是否小于等于半径就可以。   
+
 
 
 
@@ -949,7 +970,10 @@ NSLog(@"drawMoney-process = %ld",process);//它只表示成功发送信号的次
  
 
 另外performSelector:withObject:afterDelay:和 dispatch_after 都是立即返回。当两者延迟都是0，前者的执行时机比后者慢，因为前者依赖运行循环。
-```
+``` 
+记忆技巧：     
+在子线程中，<span style="color:red;font-weight:bold;">waitUntilDone:NO</span>和带有<span style="color:red;font-weight:bold;">afterDelay:的</span>执行需要依赖runloop否则不会执行。
+
 
 #### **八、interview**   
 
@@ -1085,18 +1109,26 @@ NSBlockOperation * operation2 = [NSBlockOperation blockOperationWithBlock:^{
 全局字典里：一个线程(key)对应一个runloop(value)   
 
 **2、mode**   
-<img src="/images/objectC/loop1.png">
 
-一个RunLoop包含<span style="color:red">若干个</span>Mode,启动时只能选择其中一个Mode，作为currentMode    
-每个Mode又包含<span style="color:red">若干个</span>Source0/Source1/Timer/Observer        
+一个RunLoop包含<span style="color:red">若干个</span>Mode,启动时只能选择其中一个Mode，作为currentMode       
+Mode起到隔离事件的作用，比如滑动tableview时工作在UITrackingRunLoopMode下，这时候不会进行网络请求。      
 ```objc
 kCFRunLoopDefaultMode
 UITrackingRunLoopMode
 NSRunLoopCommonModes
 ```
+
+每个Mode又包含<span style="color:red">若干个</span>Source0/Source1/Timer/Observer
+
+<img src="/images/objectC/loop1.png">
+
+
 #### **二、runloop的运行逻辑**    
 
 <img src="/images/objectC/loop4.png">
+
+处理blocks的解释：     
+这个似乎在别的文章里没有被提到，从 macOS 10.6/iOS 4 开始，可以使用 CFRunLoopPerformBlock 函数往 run loop 中添加 blocks。处理block就是处理的这些。    
 
 **runloop的源**   
 输入源：source1、source0    
@@ -1285,7 +1317,7 @@ NSMutableArray* array = [NSMutableArray array];
 
 
 <!-- ************************************************ -->
-## <a id="content2.5">2.5WebView</a>
+## <a id="content3.1">3.1WebView</a>
 
 #### **一、介绍**   
 
