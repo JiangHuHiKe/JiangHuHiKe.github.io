@@ -1130,6 +1130,16 @@ NSRunLoopCommonModes
 处理blocks的解释：     
 这个似乎在别的文章里没有被提到，从 macOS 10.6/iOS 4 开始，可以使用 CFRunLoopPerformBlock 函数往 run loop 中添加 blocks。处理block就是处理的这些。    
 
+**runloop的相关通知**     
+```objc   
+kCFRunLoopEntry    
+kCFRunLoopBeforeTimers    
+kCFRunLoopBeforeSources    
+kCFRunLoopBeforeWaiting    
+kCFRunLoopAfterWaiting    
+kCFRunLoopExit    
+```
+
 **runloop的源**   
 输入源：source1、source0    
 定时源：timer     
