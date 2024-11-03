@@ -11,7 +11,7 @@ tag: Overview
 
 ## 目录
 
-- [1.0响应者链](#content1.0)  
+- [1.0生命周期及响应者链](#content1.0)  
 - [1.1对象的本质](#content1.1)  
 - [1.2kvc/kvo](#content1.2)  
 - [1.3Category](#content1.3)   
@@ -27,8 +27,28 @@ tag: Overview
 
 
 <!-- ************************************************ -->
-## <a id="content1.0">1.0响应者链</a>
+## <a id="content1.0">1.0生命周期及响应者链</a>
 
+#### **一、生命周期**
+
+考察viewDidLoad、viewWillAppear、ViewDidAppear等方法的执行顺序。     
+假设现在有一个 AViewController(简称 Avc) 和 BViewController (简称 Bvc)，通过 navigationController 的push 实现 Avc 到 Bvc 的跳转，调用顺序如下：    
+1、A viewDidLoad         
+2、A viewWillAppear     
+3、A viewDidAppear     
+4、B viewDidLoad     
+5、A viewWillDisappear     
+6、B viewWillAppear     
+7、A viewDidDisappear     
+8、B viewDidAppear    
+如果再从 Bvc 跳回 Avc，调用顺序如下：      
+1、B viewWillDisappear      
+2、A viewWillAppear     
+3、B viewDidDisappear      
+4、A viewDidAppear    
+
+
+#### **二、响应者链**    
 <img src="/images/objectC/objc_2.png" alt="img">
 <img src="/images/objectC/objc_3.png" alt="img">
 
