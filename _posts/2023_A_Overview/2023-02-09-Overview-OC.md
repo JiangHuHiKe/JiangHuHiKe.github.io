@@ -393,19 +393,33 @@ person.blk = {
 
 <!-- ************************************************ -->
 ## <a id="content1.6">1.6内存管理</a>
-**一、内存泄露的原因**   
-1、循环引用：block的循环引用，block内访问了self或super.     
-2、delegate的循环引用,使用了strong修饰了代理对象。 
-3、定时器的循环引用，self持有定时器，定时器target传入self后会持有self，造成循环引用。      
-4、调用了c/c++的malloc开辟了空间而没有手动调用delloc。类似的比如调用CGImageCreate不调用CGImageRelease      
 
-**二、解决内存泄露的方法**      
-1、__weak typeof(self) weakSelf = self;破除循环引用。         
-2、代理使用@property(nonatomic, weak)id<TestViewDelegate> delegate;修饰。     
-3、使用定时器的block形式。或者使用代理类NSProxy，将proxy对象作为target传入定时器。proxy对象弱引用self，然后利用消息转发将调用转给self。            
-4、手动delloc或release堆空间           
+#### **一、内存管理方式**    
+**1、内存分布**     
 
-**三、内存泄露的检测方法**      
+<img src="/images/underlying/other2.png" alt="img">
+   
+
+**2、管理方式**    
+MRC：手动引用计数         
+ARC：自动引用计数      
+TaggedPointer    
+Autorelease     
+
+#### **二、内存泄露**    
+**1、内存泄露的原因**        
+(1) 循环引用：block的循环引用，block内访问了self或super.       
+(2) delegate的循环引用,使用了strong修饰了代理对象。   
+(3) 定时器的循环引用，self持有定时器，定时器target传入self后会持有self，造成循环引用。        
+(4) 调用了c/c++的malloc开辟了空间而没有手动调用delloc。类似的比如调用CGImageCreate不调用CGImageRelease        
+
+**2、解决内存泄露的方法**          
+(1) __weak typeof(self) weakSelf = self;破除循环引用。              
+(2) 代理使用@property(nonatomic, weak)id<TestViewDelegate> delegate;修饰。<br>                
+(3) 使用定时器的block形式。或者使用代理类NSProxy，将proxy对象作为target传入定时器。proxy对象弱引用self，然后利用消息转发将调用转给self。<br>                   
+(4) 手动delloc或release堆空间               
+
+**3、内存泄露的检测方法**        
 
 
 
