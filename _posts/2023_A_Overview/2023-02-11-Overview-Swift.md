@@ -567,6 +567,21 @@ let cls :Person.type = Person.self
 扩展不能添加指定初始化器：Swift中的初始化是一个严格的过程，不允许在扩展中添加，保证初始化的一致性
 
 ```swift
+class Stack<E> {
+    var elements = [E]()
+    
+    func push(_ element: E) {
+        elements.append(element)
+    }
+    
+    func pop() -> E {
+        elements.removeLast()
+    }
+    
+    func size() -> Int {
+        elements.count
+    }
+}
 // 给stack类扩展遵守Equatable协议
 // E 类中的泛型在扩展中仍然可以使用
 // 满足某些条件才会有扩展
