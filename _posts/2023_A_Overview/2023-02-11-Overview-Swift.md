@@ -115,7 +115,7 @@ print("arr1 = \(arr1), arr = \(arr)")
 
 Any 任意类型：对象类型，int类型等    
 
-AnyObject 任意对象类型：实例对象、类对象   
+AnyObject 任意对象类型：实例对象
 
 AnyClass 任意类对象类型  
 
@@ -268,12 +268,16 @@ let c = a ?? b
 
 
 #### 四、多重可选项
-```
-多重可选项的比较：
-    能解包出相同的具体值的多重可选项都是相等的
+看下图分析：
+```text
+num1 == num3; // true 非空的可选项比较会递归解包
+num2 == num4; // false 空也是有类型的，它俩类型不同所以不相等。   
 
-使用场景：GPT异步比如获取用户信息。没明白??
+这里重点介绍下num5,num5是非空的，所以比较时会递归解包
+num2 == num5; // ture
 ```
+
+<img src="./images/swift/swift_11.png">
 
 #### 五、可选链
 ```Swift
