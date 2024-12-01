@@ -91,6 +91,18 @@ var str = "0123456789ABCDEF"
 str.append("ABCDEF")
 
 ```
+常用方法：
+```text
+// 字符串的拼接
+let str1 = "hello";
+let str2 = "world"
+let newStr = str1 + " " + str2;
+
+// 字符串子串
+let startIdx = newStr.index(newStr.startIndex, offsetBy: 6)
+let endIdx = newStr.index(newStr.endIndex, offsetBy: -1)
+let subStr = newStr[startIdx...endIdx];
+```
 
 **2、Array**    
 Swift中的数组也是结构体，是值类型
@@ -106,7 +118,144 @@ print("arr1 = \(arr1), arr = \(arr)")
 ```
 <span style="color:red;fontWeight:bold">PS:Array在底层其实是引用类型 但实际使用时是结构体<br> 行为上是值类型 本质是引用类型只是苹果隐藏了这一层</span>
 
+常用方法：   
+```text
+var array = [0, 1, 2, 3, 4, 5, 6]
+
+// 常用属性
+array.count;
+array.first;
+array.last;
+array[0];
+
+//尾部操作
+array.append(7);
+array.popLast();
+
+//通用操作
+array.insert(7, at: array.count);
+array.remove(at: array.count-1)
+
+//子数组
+let subArray = array[2...array.count-1];
+print(subArray);// [2, 3, 4, 5, 6]
+
+
+let startIdx = array.index(array.startIndex, offsetBy: 2)
+let endIdx = array.index(array.endIndex, offsetBy: -1)
+let subArray2 = array[startIdx...endIdx]
+print(subArray2)// [2, 3, 4, 5, 6]
+```
+
+```text
+let array = [0, 1, 2, 3, 4, 5, 6]
+
+// 映射
+let newArray = array.map({(item) in
+    return item * 2
+})
+// [0, 2, 4, 6, 8, 10, 12]
+print(newArray)
+
+// 过滤
+let filterArray = array.filter({(item) in
+    return item % 2 == 0
+})
+// [0, 2, 4, 6]
+print(filterArray)
+
+
+// 求和
+let reduce = array.reduce(0, {(result, element) in
+    return result + element;
+})
+// 21
+print(reduce)
+
+```
+
 **3、Dictionary 和 Set 也是结构体类型，也是值类型**
+
+常用方法：
+```text
+// 初始化一个字典
+var emptyDict = [String: Int]()
+
+// 初始化一个字典
+var map:[String : Any] = [
+    "name" : "xiaoming",
+    "age" : 18
+]
+
+// ["age": 18, "name": "xiaoming"]
+print(map)
+
+
+// 1-1、获取，如果不存在就返回缺省值
+var name = map["name",default: "Tom"]
+//xiaoming
+print(name)
+
+// 1-2、获取，因为可能是空所以返回可选项
+name = map["name"]
+//Optional("xiaoming")
+print(name)
+
+// 2、修改
+map["name"] = "Alice"
+// ["age": 18, "name": "Alice"]
+print(map)
+
+// 3、删除一个key
+map.removeValue(forKey: "age")
+// ["name": "Alice"]
+print(map)
+
+// 4、增加一个key
+map["age"] = 19
+// ["age": 19, "name": "Alice"]
+print(map)
+```
+
+```text
+var dic:[String : Any] = [
+    "name" : "xiaoming",
+    "age" : 18
+]
+
+// 映射
+let array = dic.map({(item) in
+    // return (item.key, item.value)
+    return item
+})
+// [(key: "name", value: "xiaoming"), (key: "age", value: 18)]
+print(array)
+
+
+// 过滤
+let newDic = dic.filter({element in
+    if element.key == "name" {
+        return true
+    } else {
+        return false
+    }
+})
+// ["name": "xiaoming"]
+print(newDic)
+
+// 求和
+let result = dic.reduce(0, {(result, element) in
+    if element.value is Int {
+        return result + (element.value as! Int)
+    } else {
+        return result + 0
+    }
+})
+// 18
+print(result)
+```
+
+
 
 **4、元组是一个复合类型，也是值类型**
 
