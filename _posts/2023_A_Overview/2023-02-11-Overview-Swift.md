@@ -91,6 +91,18 @@ var str = "0123456789ABCDEF"
 str.append("ABCDEF")
 
 ```
+常用方法：
+```text
+// 字符串的拼接
+let str1 = "hello";
+let str2 = "world"
+let newStr = str1 + " " + str2;
+
+// 字符串子串
+let startIdx = newStr.index(newStr.startIndex, offsetBy: 6)
+let endIdx = newStr.index(newStr.endIndex, offsetBy: -1)
+let subStr = newStr[startIdx...endIdx];
+```
 
 **2、Array**    
 Swift中的数组也是结构体，是值类型
@@ -106,7 +118,144 @@ print("arr1 = \(arr1), arr = \(arr)")
 ```
 <span style="color:red;fontWeight:bold">PS:Array在底层其实是引用类型 但实际使用时是结构体<br> 行为上是值类型 本质是引用类型只是苹果隐藏了这一层</span>
 
+常用方法：   
+```text
+var array = [0, 1, 2, 3, 4, 5, 6]
+
+// 常用属性
+array.count;
+array.first;
+array.last;
+array[0];
+
+//尾部操作
+array.append(7);
+array.popLast();
+
+//通用操作
+array.insert(7, at: array.count);
+array.remove(at: array.count-1)
+
+//子数组
+let subArray = array[2...array.count-1];
+print(subArray);// [2, 3, 4, 5, 6]
+
+
+let startIdx = array.index(array.startIndex, offsetBy: 2)
+let endIdx = array.index(array.endIndex, offsetBy: -1)
+let subArray2 = array[startIdx...endIdx]
+print(subArray2)// [2, 3, 4, 5, 6]
+```
+
+```text
+let array = [0, 1, 2, 3, 4, 5, 6]
+
+// 映射
+let newArray = array.map({(item) in
+    return item * 2
+})
+// [0, 2, 4, 6, 8, 10, 12]
+print(newArray)
+
+// 过滤
+let filterArray = array.filter({(item) in
+    return item % 2 == 0
+})
+// [0, 2, 4, 6]
+print(filterArray)
+
+
+// 求和
+let reduce = array.reduce(0, {(result, element) in
+    return result + element;
+})
+// 21
+print(reduce)
+
+```
+
 **3、Dictionary 和 Set 也是结构体类型，也是值类型**
+
+常用方法：
+```text
+// 初始化一个字典
+var emptyDict = [String: Int]()
+
+// 初始化一个字典
+var map:[String : Any] = [
+    "name" : "xiaoming",
+    "age" : 18
+]
+
+// ["age": 18, "name": "xiaoming"]
+print(map)
+
+
+// 1-1、获取，如果不存在就返回缺省值
+var name = map["name",default: "Tom"]
+//xiaoming
+print(name)
+
+// 1-2、获取，因为可能是空所以返回可选项
+name = map["name"]
+//Optional("xiaoming")
+print(name)
+
+// 2、修改
+map["name"] = "Alice"
+// ["age": 18, "name": "Alice"]
+print(map)
+
+// 3、删除一个key
+map.removeValue(forKey: "age")
+// ["name": "Alice"]
+print(map)
+
+// 4、增加一个key
+map["age"] = 19
+// ["age": 19, "name": "Alice"]
+print(map)
+```
+
+```text
+var dic:[String : Any] = [
+    "name" : "xiaoming",
+    "age" : 18
+]
+
+// 映射
+let array = dic.map({(item) in
+    // return (item.key, item.value)
+    return item
+})
+// [(key: "name", value: "xiaoming"), (key: "age", value: 18)]
+print(array)
+
+
+// 过滤
+let newDic = dic.filter({element in
+    if element.key == "name" {
+        return true
+    } else {
+        return false
+    }
+})
+// ["name": "xiaoming"]
+print(newDic)
+
+// 求和
+let result = dic.reduce(0, {(result, element) in
+    if element.value is Int {
+        return result + (element.value as! Int)
+    } else {
+        return result + 0
+    }
+})
+// 18
+print(result)
+```
+
+
 
 **4、元组是一个复合类型，也是值类型**
 
@@ -115,7 +264,7 @@ print("arr1 = \(arr1), arr = \(arr)")
 
 Any 任意类型：对象类型，int类型等    
 
-AnyObject 任意对象类型：实例对象、类对象   
+AnyObject 任意对象类型：实例对象
 
 AnyClass 任意类对象类型  
 
@@ -268,12 +417,16 @@ let c = a ?? b
 
 
 #### 四、多重可选项
-```
-多重可选项的比较：
-    能解包出相同的具体值的多重可选项都是相等的
+看下图分析：
+```text
+num1 == num3; // true 非空的可选项比较会递归解包
+num2 == num4; // false 空也是有类型的，它俩类型不同所以不相等。   
 
-使用场景：GPT异步比如获取用户信息。没明白??
+这里重点介绍下num5,num5是非空的，所以比较时会递归解包
+num2 == num5; // ture
 ```
+
+<img src="./images/swift/swift_11.png">
 
 #### 五、可选链
 ```Swift
@@ -563,6 +716,21 @@ let cls :Person.type = Person.self
 扩展不能添加指定初始化器：Swift中的初始化是一个严格的过程，不允许在扩展中添加，保证初始化的一致性
 
 ```swift
+class Stack<E> {
+    var elements = [E]()
+    
+    func push(_ element: E) {
+        elements.append(element)
+    }
+    
+    func pop() -> E {
+        elements.removeLast()
+    }
+    
+    func size() -> Int {
+        elements.count
+    }
+}
 // 给stack类扩展遵守Equatable协议
 // E 类中的泛型在扩展中仍然可以使用
 // 满足某些条件才会有扩展
