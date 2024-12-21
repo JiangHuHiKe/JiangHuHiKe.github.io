@@ -11,6 +11,7 @@ tag: 其它
 
 ## 目录
 - [介绍](#content1)   
+- [Android SDK 的安装](#content2)   
 
 
 ## <a id="content1">介绍</a>
@@ -48,6 +49,48 @@ Cmdline-tools 是 Android SDK 中的一部分，专门为开发者提供命令�
 <span style="color:gray;font-size:12;font-style:italic;">提示：不这么做在bin目录下执行 ./sdkmanager 相关指令时会报根目录相关的错误。</span>
 
 <img src="/images/Other/1.png">
+
+
+## <a id="content2">Android SDK 的安装</a>
+
+#### **通过 Android Studio 安装**   
+最简单的方式是通过安装 Android Studio，它包含了 Android SDK 和其他开发工具。        
+在首次启动时，Android Studio 会提示你安装 Android SDK。如果你选择默认选项，SDK 会自动安装。      
+默认的安装目录是：/Users/your_username/Library/Android/sdk     
+
+
+#### **通过 cmdline-tools 安装**   
+
+下载 cmdline-tools 并按文章上面提到的方式创建latest目录。    
+手动创建目录:/Users/your_username/Library/Android/sdk  并将 cmdline-tools 拷贝到该目录下        
+进入目录：/Users/your_username/Library/Android/sdk/cmdline-tools/latest/bin，执行下列命令手动安装SDK         
+```text
+// 32是版本，可以指定自己需要的版本
+./sdkmanager "build-tools;32.0.0" "platforms;android-32" "platform-tools" 
+
+
+// 如果还需要安装tools目录，可以接着执行下面的命令
+./sdkmanager "tools"
+```
+
+#### **设置环境变量**    
+
+在 ~/.zshrc文件中设置环境变量   
+```text
+# Android 环境配置
+export ANDROID_HOME="/Users/your_username/Library/Android/sdk"
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+```
+
+验证是否安装成功
+```text
+adb --version
+
+android --version 
+```
+
+
+
 
 
 
