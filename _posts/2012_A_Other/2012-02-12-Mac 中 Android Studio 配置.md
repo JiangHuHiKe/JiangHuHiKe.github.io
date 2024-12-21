@@ -12,6 +12,7 @@ tag: 其它
 ## 目录
 - [介绍](#content1)   
 - [Android SDK 的安装](#content2)   
+- [Android Studio 使用技巧](#content66)   
 
 
 ## <a id="content1">介绍</a>
@@ -91,6 +92,31 @@ android --version
 
 
 
+## <a id="content66">Android Studio 使用技巧</a>
+
+**字体大小设置**     
+Settings - Editor - Font     
+
+**编辑器右边有个线怎么去掉,见下图**    
+Settings - Editor - Appearance  
+找到右边的：Show hard wrap and visual guides 选项进行关闭   
+
+**如何设置自动换行**   
+Settings -> Editor -> General   
+找到右边的 soft wraps 下的 Soft-wrap these files 选项进行打开    
+
+**双栏设置**      
+window -> Editor tabs -> split right
+
+
+**查找替换**      
+全局搜索快捷键：Ctrl + Shift + R    
+页面内搜索快捷键 ：Ctrl + F   
+替換快捷鍵 ：Ctrl + R   
+
+**显示前进后退按钮**   
+view - appearance - Toolbar       
+在最新版本的Android Studio中已经没有前进后退按钮了    
 
 
 
