@@ -44,7 +44,15 @@ Cmdline-tools 是 Android SDK 中的一部分，专门为开发者提供命令�
 
 #### **为什么我安装了Android Studio并下载好了Android SDK，在sdk目录下并没有找到cmdline-tools目录**    
 
-这是正常的，因为默认情况下，Android Studio 不会自动安装命令行工具（cmdline-tools）文件夹。可以去官网手动下载它。
+这是正常的，因为默认情况下，Android Studio 不会自动安装命令行工具（cmdline-tools）文件夹。
+
+**安装方式一：**       
+<img src="/images/Other/2.png">
+
+<span style="color:red;font-weight:bold;">从这里可以看出，这里列出的选项对应sdk目录下面的文件夹</span>
+
+**安装方式二：**    
+可以去官网手动下载它。
 
 下载解压后会得到一个名 cmdline-tools 文件夹，在文件夹内创建一个latest目录，并将所有的内容拷贝进这个目录    
 <span style="color:gray;font-size:12;font-style:italic;">提示：不这么做在bin目录下执行 ./sdkmanager 相关指令时会报根目录相关的错误。</span>
