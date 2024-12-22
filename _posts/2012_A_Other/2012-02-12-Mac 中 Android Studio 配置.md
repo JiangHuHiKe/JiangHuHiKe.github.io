@@ -12,6 +12,7 @@ tag: 其它
 ## 目录
 - [介绍](#content1)   
 - [Android SDK 的安装](#content2)   
+- [Configuration 的使用](#content3)   
 - [Android Studio 使用技巧](#content66)   
 
 
@@ -98,6 +99,11 @@ adb --version
 android --version 
 ```
 
+## <a id="content3">Configuration 的使用</a>
+
+需要研究研究   
+安装了 Dart 和 flutter 插件后，提示 enable dart 点击后，生成了一个配置项，顶部出现了 run 和 debug按钮。    
+不知道怎么配置的，再研究吧。     
 
 
 ## <a id="content66">Android Studio 使用技巧</a>
