@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # 指定目录
-directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2015_B_CodeEncrypt"
+# directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2015_B_CodeEncrypt"
 # directory="/Users/lxy/LXYFile/ResourceInGithub/JiangHuHiKe/_posts/2024_A_Harmony"
+ directory="/Users/lixiaoyi/LXYFile/ResourceInGithub/JiangHuHiKe.github.io/_posts/2012_A_Other"
+
 
 # 遍历文件夹下文件时，跳过前面几个文件的个数
-skipCount=10
+skipCount=8
 
 # 开始日期
 start_date="2015-06-12"
