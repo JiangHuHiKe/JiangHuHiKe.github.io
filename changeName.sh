@@ -7,10 +7,10 @@
 
 
 # 遍历文件夹下文件时，跳过前面几个文件的个数
-skipCount=8
+skipCount=10
 
 # 开始日期
-start_date="2015-06-12"
+start_date="2012-02-12"
 current_date=$(date -jf "%Y-%m-%d" "$start_date" "+%Y-%m-%d")
 
 # 遍历每个文件

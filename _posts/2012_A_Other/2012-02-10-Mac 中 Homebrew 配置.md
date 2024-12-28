@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Mac 中 Homebrew 配置"
-date: 2012-02-09
+date: 2012-02-10
 description: ""
 tag: 其它
 ---
