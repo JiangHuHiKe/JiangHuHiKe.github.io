@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Mac 中 Android Studio 配置"
+title: "Mac中 Android 环境配置"
 date: 2012-02-13
 description: ""
 tag: 其它

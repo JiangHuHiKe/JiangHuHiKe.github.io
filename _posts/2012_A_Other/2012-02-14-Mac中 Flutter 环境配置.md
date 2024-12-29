@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Mac 中 Flutter环境配置"
+title: "Mac中 Flutter 环境配置"
 date: 2012-02-14
 tag: 其它
 ---
