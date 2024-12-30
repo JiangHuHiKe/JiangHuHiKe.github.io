@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Mac 中 Android Studio 配置"
-date: 2012-02-12
+title: "Mac中 Android 环境配置"
+date: 2012-02-13
 description: ""
 tag: 其它
 ---
@@ -13,6 +13,7 @@ tag: 其它
 - [介绍](#content1)   
 - [Android SDK 的安装](#content2)   
 - [Configuration 的使用](#content3)   
+- [关于Gradle](#content4)   
 - [Android Studio 使用技巧](#content66)   
 
 
@@ -104,6 +105,77 @@ android --version
 需要研究研究   
 安装了 Dart 和 flutter 插件后，提示 enable dart 点击后，生成了一个配置项，顶部出现了 run 和 debug按钮。    
 不知道怎么配置的，再研究吧。     
+
+
+## <a id="content4">关于Gradle</a>
+
+Gradle 是一种灵活且强大的构建工具，用于自动化软件项目的构建、测试和部署过程。它特别流行于 Java 和 Android 项目，但也可以用于其他语言如 Kotlin、Groovy、Scala 和 C++。
+
+#### **一、主要特点**    
+
+**基于 Groovy 或 Kotlin DSL**    
+Gradle 的构建脚本可以用 Groovy 或 Kotlin 编写。脚本文件通常是 build.gradle（Groovy）或 build.gradle.kts（Kotlin）。   
+
+**增量构建**     
+Gradle 通过智能任务执行和任务缓存，避免不必要的重新构建，提高构建速度。
+
+**依赖管理**     
+Gradle 支持强大的依赖管理，可以从 Maven、Ivy 或其他自定义仓库获取依赖。
+
+**多项目构建支持**    
+Gradle 支持大型项目的多模块管理，可以方便地组织和构建多模块应用。
+
+**插件机制**    
+Gradle 提供了丰富的插件生态，如 Java 插件、Android 插件等，用于扩展其功能。也可以自定义插件。
+
+**与 CI/CD 集成**    
+Gradle 与 Jenkins、GitHub Actions 等 CI/CD 工具无缝集成，便于自动化构建和发布。
+
+
+#### **二、Gradle 的基本概念** 
+
+**Project（项目）**    
+Gradle 的构建单元，每个项目对应一个 Project 对象。
+
+**Task（任务）**    
+Gradle 的最小执行单元，例如编译代码、运行测试或生成文档。
+
+**Dependency（依赖）**    
+定义项目构建时需要的外部库或模块。
+
+**Build Script（构建脚本）**     
+build.gradle 文件，用于定义项目的配置、任务和依赖。
+
+
+### **三、Gradle 的核心文件**     
+settings.gradle / settings.gradle.kts    
+用于定义项目的结构，尤其是多模块项目的模块列表。
+
+build.gradle / build.gradle.kts    
+配置项目任务和依赖的主要脚本文件。
+
+gradle.properties     
+用于设置全局或项目范围的配置属性。
+
+
+
+#### **四、radle 的主要命令**     
+**gradle tasks**      
+列出项目中的所有任务。
+
+**gradle build**     
+执行项目的完整构建，包括编译、测试和打包。
+
+**gradle clean**    
+清理生成的构建文件。
+
+**gradle dependencies**   
+查看项目的依赖树。
+
+**gradle assemble**    
+仅生成项目的构建输出（如 JAR 文件）。
+
+Gradle 是一个功能强大、灵活的构建工具，适用于从小型到大型项目的构建。通过其插件机制和强大的依赖管理功能，它可以显著提升开发效率。
 
 
 ## <a id="content66">Android Studio 使用技巧</a>

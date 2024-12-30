@@ -19,8 +19,9 @@ tag: 其它
 
 
 
-<!-- ************************************************ -->
-## <a id="content1"></a>jekyll
+
+
+## <a id="content1">jekyll</a>
 
 
 Jekyll 是一个简单的免费的 Blog 生成工具，类似 WordPress。但是和 WordPress 又有很大的不同，原因是 Jekyll 只是一个生成静态网页的工具，不需要数据库支持。Jekyll 可以免费部署在 Github 上，而且可以绑定自己的域名
@@ -53,8 +54,7 @@ Jekyll 可以使用 .html、.md、.sass 文件进行维护，和其他类似的�
 
 
 
-<!-- ************************************************ -->
-## <a id="content2"></a>jekyll serve报错
+## <a id="content2">jekyll serve报错</a>
 
 今天之前jekyll serve 一直正常运行，也没有进行特别的配置更改，但在今天执行 jekyll serve时就报错了,报错内容GemNotFound，大概意思是bundler下一个文件内引用的内容缺失。
 

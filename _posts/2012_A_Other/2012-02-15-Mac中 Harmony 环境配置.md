@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Mac 中 Harmony 环境配置"
-date: 2012-02-14
+title: "Mac中 Harmony 环境配置"
+date: 2012-02-15
 tag: 其它
 ---
 
