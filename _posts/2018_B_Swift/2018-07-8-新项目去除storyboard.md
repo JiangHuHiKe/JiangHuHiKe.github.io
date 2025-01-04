@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "新项目去除storyboard"
-date: 2018-07-10
+date: 2018-07-8
 description: ""
 tag: Swift
 ---
