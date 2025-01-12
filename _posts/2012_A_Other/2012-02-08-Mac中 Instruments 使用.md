@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Instruments"
-date: 2012-02-07
+title: "Mac中 Instruments 使用"
+date: 2012-02-08
 description: ""
 tag: 其它
 ---
