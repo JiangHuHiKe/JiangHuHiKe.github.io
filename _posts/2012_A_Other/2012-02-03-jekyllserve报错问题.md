@@ -56,6 +56,7 @@ Jekyll 可以使用 .html、.md、.sass 文件进行维护，和其他类似的�
 
 ## <a id="content2">jekyll serve报错</a>
 
+#### **报错一**
 今天之前jekyll serve 一直正常运行，也没有进行特别的配置更改，但在今天执行 jekyll serve时就报错了,报错内容GemNotFound，大概意思是bundler下一个文件内引用的内容缺失。
 
 接着执行指令,安装缺失的文件：
@@ -149,6 +150,43 @@ bundle update
 jekyll serve
 ```
 服务正常启动，问题解决。
+
+
+#### **报错二**
+
+```text
+jekyll serve            
+/Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/runtime.rb:319:in check_for_activated_spec!': You have already activated concurrent-ruby 1.3.5, but your Gemfile requires concurrent-ruby 1.3.4. Prepending bundle exec to your command may solve this. (Gem::LoadError)
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/runtime.rb:25:in block in setup'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/spec_set.rb:196:in each'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/spec_set.rb:196:in each'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/runtime.rb:24:in map'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler/runtime.rb:24:in setup'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/bundler-2.6.1/lib/bundler.rb:167:in setup'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/jekyll-4.3.4/lib/jekyll/plugin_manager.rb:52:in require_from_bundler'
+        from /Users/lixiaoyi/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/jekyll-4.3.4/exe/jekyll:11:in <top (required)>'
+        from /usr/local/bin/jekyll:25:in load'
+        from /usr/local/bin/jekyll:25:in <main>'
+```
+
+**报错原因：**          
+jekyll serve 命令报错的原因是 concurrent-ruby 版本冲突：    
+Gemfile 需要 concurrent-ruby 1.3.4，但系统里已经激活了 concurrent-ruby 1.3.5，导致 Jekyll 运行失败。   
+
+**解决方法一：使用 bundle exec**       
+解决方案是在 jekyll serve 前加上 bundle exec，确保使用 Gemfile.lock 里指定的依赖版本。
+
+**解决方法二：更新 Gemfile.lock**     
+如果你想更新 Gemfile.lock 让它兼容 concurrent-ruby 1.3.5：    
+
+```text   
+bundle update concurrent-ruby
+```
+
+然后再运行：    
+```text
+jekyll serve
+```
 
 
 
