@@ -65,6 +65,7 @@ Task(priority: .high) {
 Task {
     // 继承当前上下文（如 @MainActor）
 }
+
 Task.detached {
     // 完全独立，不继承任何 Actor 或优先级
 }
@@ -73,13 +74,14 @@ Task.detached {
 Task.detached 适合那种必须完全独立（不跟 UI/主线程挂钩）的后台任务。     
 
 ✅ 总结一句话：    
-**Task {} = 在同步环境里开启一个新的异步任务，可以使用 await，并且可以指定优先级和控制生命周期。**       
+**Task {} 是在同步环境里开启一个新的异步任务，可以使用 await，并且可以指定优先级和控制生命周期。**       
 
 
 ## <a id="content2">actor</a>
 
 在 Swift 并发里，Actor 是一种保证“同一时间只允许一个任务访问其内部状态”的**类型**，避免数据竞争。    
 可以理解成：一个 **带有隐式锁** 的对象。    
+<span style="color:red;">xy：actor 是在多线程状态下保证数据安全的一种类型</span>
 
 
 #### **一、MainActor**    
@@ -91,16 +93,27 @@ MainActor 是 Swift 内置的一个 特殊 Actor。
 
 
 **标记函数**
+```swift
+@MainActor
+func updateUI() {
+    label.text = "Hello"
+}
+```
+
+即使你从后台调用，Swift 也会切换到主线程再执行。
 
 ```swift
 @MainActor
-class ProfileViewController: UIViewController {
-    func refreshUI() {
-        label.text = "User name"
-    }
+func showData() async {
+    let result = await fetchData()  // fetchData 可能在后台执行
+    label.text = result             // 但这里保证在主线程更新 UI
+}
+
+func fetchData() async -> String {
+    "Hello"
 }
 ```
-即使你从后台调用，Swift 也会切换到主线程再执行。
+
 
 
 **标记类 / 结构体**
@@ -113,29 +126,41 @@ class ProfileViewController: UIViewController {
     }
 }
 ```
-
-```swift
-func fetchData() async -> String {
-    "Hello"
-}
-
-@MainActor
-func showData() async {
-    let result = await fetchData()  // fetchData 可能在后台执行
-    label.text = result             // 但这里保证在主线程更新 UI
-}
-```
-
 整个类里的方法都会在主线程执行。     
 很适合标记 UIViewController、ViewModel 等和 UI 相关的对象。     
 
+**切换到主线程**    
 
+```swift
+// 启动异步任务
+Task {
+    let data = await fetchData()
+    
+    // ⚠️ 注意：这里我们可能在后台线程
+    // 所以需要切换到主线程更新 UI
+    await MainActor.run {
+        label.text = data
+    }
+}
+```
+**和 GCD 的对比**    
 
+以前我们写：
 
-
-
-
-
+```swift
+DispatchQueue.main.async {
+    label.text = "Hello"
+}
+```
+在 Swift 并发里，更推荐写：
+```swift
+await MainActor.run {
+    label.text = "Hello"
+}
+```
+**区别：**        
+GCD 是“裸奔”的队列调度，<span style="font-weight:bold;">编译器</span>不知道它做了啥。   
+@MainActor 是 <span style="clor:red;font-weight:bold;color:red;">类型系统</span> 的一部分，编译器能检查你是否在错误的线程访问UI，从而 <span style="font-weight:bold;color:red;">编译时报错</span>（比运行时更安全）。    
 
 
 

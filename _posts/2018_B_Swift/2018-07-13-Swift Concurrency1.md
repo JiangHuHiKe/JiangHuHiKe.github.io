@@ -72,7 +72,7 @@ Task {
 ```
 
 ✅ 总结一句：         
-**Swift Concurrency = 一整套新的并发编程方案（async/await + Task + Actor），让多任务编程更直观、更安全。**
+**Swift Concurrency 是 一整套新的并发编程方案（async/await + Task + Actor），让多任务编程<span style="color:red">更直观</span>、<span style="color:red;">更安全</span>。**
 
 
 
