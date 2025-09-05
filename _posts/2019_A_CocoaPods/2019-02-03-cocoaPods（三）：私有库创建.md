@@ -2,9 +2,9 @@
 layout: post
 title: "cocoaPods（三）：私有库创建"
 date: 2019-02-03
-description: "cocoaPods（三）：私有库创建"
+description: ""
 tag: CocoaPods
---- 
+---
 
 
 
@@ -21,86 +21,119 @@ tag: CocoaPods
 
 
 
-<!-- ************************************************ -->
 ## <a id="content1">私有pod库创建</a>
 
-- [参考文章：https://www.jianshu.com/p/36953a48937d](https://www.jianshu.com/p/36953a48937d)
-- [参考文章：https://cloud.tencent.com/developer/article/1336311](https://cloud.tencent.com/developer/article/1336311)
+#### 一、创建流程   
 
-
-
-  
-```   
-#1 github创建一个仓库 用来存储工程文件
-https://github.com/JiangHuHiKe/LCCommon.git
+```
+#1 github 或者 gitlab 等 创建一个仓库 用来存储工程文件
+https://github.com/JiangHuHiKe/XYUIKit.git
 
 
 #2 创建pod私有库的项目工程      
 在合适的目录下执行 pod lib create 命令 按提示输入需要的内容
-创建名字叫LCCommon的私有库项目
-pod lib create LCCommon   
+创建名字叫XYUIKit的私有库项目
+pod lib create XYUIKit   
 
 
 #3 添加文件并更新   
-在目录 ../LCCommon/LCCommon/Classes下 删除"ReplaceMe.m"文件
-在目录 ../LCCommon/LCCommon/Classes下 添加LCCategory文件夹，内包含UIColor+Category.h UIColor+Category.m文件
-在目录 ../LCCommon/Example下执行 pod install  更新Example项目中的pod 出现提示成功字样 该步完成
+在目录 ../XYUIKit/XYUIKit/Classes下 删除"ReplaceMe.m"文件
+在目录 ../XYUIKit/XYUIKit/Classes下 添加LCCategory文件夹，内包含UIColor+Category.h UIColor+Category.m文件
+在目录 ../XYUIKit/Example下执行 pod install  更新Example项目中的pod 出现提示成功字样 该步完成
 
 
 #4 修改podspec文件并验证   
-打开../LCCommon/Example 中的.workspace文件 打开工程    
-找到LCCommon.podspec文件 进行修改   
-在目录 ../LCCommon下执行pod lib lint 进行验证 出现成功字样 该步完成
-   
+找到XYUIKit.podspec文件 进行修改   
+在XYUIKit.podspec所在目录下执行 
+pod lib lint 
+进行验证 出现成功字样 该步完成
+
+
+
     
 #5 将本地项目文件上传到远程私有库中 并 校验spec
-在目录../LCCommon下执行：
-$ git remote add origin https://github.com/JiangHuHiKe/LCCommon.git
+在XYUIKit工程目录下执行：
+$ git remote add origin https://github.com/JiangHuHiKe/XYUIKit.git
 $ git add .
-$ git commit -m "Initial LCCommon"
+$ git commit -m "Initial XYUIKit"
 $ git push -u origin master
 $ git tag 0.1.0     //tag 值要和podspec中的version一致
 $ git push --tags   //推送tag到服务器上
 
-在目录../LCCommon下执行：
+在XYUIKit.podspec所在目录下执行    
 pod spec lint 
 校验spec 出现成功提示该步完成，出现错误重新执行该步骤
 ```
-    
- 
- 
-<!-- ************************************************ -->
+
+#### 二、验证介绍
+
+**1、pod lib lint 验证什么**     
+
+**本地验证：**            
+它会在本地新建一个临时工程，把你写的 .podspec 文件引入进去，然后尝试编译。    
+
+**检查点：**    
+.podspec 格式是否合法（字段齐全，类型正确）。    
+.source_files 指向的文件是否存在。    
+Swift/OC 混编是否能编译通过。    
+是否能在不同平台（iOS/macOS 等）编译通过（取决于你 s.platform 设置）。    
+是否需要 use_frameworks!/static_framework 等特殊配置。    
+
+**⚠️ 注意：**     
+pod lib lint 不会拉取远程仓库，它只依赖你当前目录下的源码。        
+这意味着即使 .source 写的 Git 地址不可访问，它也能通过。       
+
+
+**2、pod spec lint 验证什么**     
+
+**远程验证：**     
+它会去 .podspec 的 s.source 指定的 Git 地址，拉取对应 tag 的代码，并做和 pod lib lint 类似的编译检查。    
+
+**因此必须保证：**        
+仓库可访问（公开或私有仓库 + 认证成功）。     
+tag 存在并和版本号对应。    
+
+
+**3、总结**     
+
+本地开发阶段 → 用 pod lib lint，快速验证 podspec 正确性和能否编译。     
+准备发布到私有/公共仓库 → 用 pod spec lint，确保远程源码也能被别人 clone 并正常编译     
+
+
+
 ## <a id="content2">私有pod库索引库创建</a> 
 
 
 ```
 #1 github创建一个仓库 用来作为索引库
-https://github.com/JiangHuHiKe/LCCommonSpec.git
+这个仓库存放了我们创建的组件的XYUIKit.podspec文件    
+https://github.com/JiangHuHiKe/XYAppMobileSpec.git
 
 
-#2 将索引库克隆到 ~/.cocoaPods/repos目录下
-在目录../LCCommon下执行：
-pod repo add LCCommonSpec https://github.com/JiangHuHiKe/LCCommonSpec.git
+#2 将索引仓库克隆到 ~/.cocoaPods/repos目录下
+XYAppMobileSpec 指定索引库在本地的名字，在~/.cocoaPods/repos下就可以看到
+pod repo add XYAppMobileSpec https://github.com/JiangHuHiKe/XYAppMobileSpec.git
 
 
 #3 建立关联
-在目录../LCCommon下执行：
-pod repo push LCCommonSpec LCCommon.podspec 
+将XYUIKit.podspec添加到~/.cocoaPods/repos/XYAppMobileSpec目录下，并推送到远程     
+在目录XYUIKit.podspec所在目录下执行：
+pod repo push XYAppMobileSpec XYUIKit.podspec 
+
 ```
 
 
 
-<!-- ************************************************ -->
 ## <a id="content3">私有库使用</a> 
 
 
 ```
 #1 开始集成前可先搜索
-pod search LCCommon
+pod search XYUIKit
 
 
 #2 更新索引库
-pod repo update LCCommonSpec
+pod repo update XYAppMobileSpec
 
 
 #3 新建工程的根目录下执行
@@ -109,17 +142,19 @@ pod init
 
 #4 修改Podfile文件如下
 source 'https://github.com/CocoaPods/Specs.git'
-source 'https://github.com/JiangHuHiKe/LCCommonSpec.git'
+source 'https://github.com/JiangHuHiKe/XYAppMobileSpec.git'
 target 'podUsageTest' do
 #use_frameworks!
 platform :ios, '9.0'
 pod 'MJExtension'
-pod 'LCCommon'
+pod 'XYUIKit'
 end
 
 
 #5 集成
 pod install
+当我们执行pod install的时候就会先在本地的~/.cocoaPods/repos/XYAppMobileSpec中查找
+如果没有就会去索引库更新到本地     
 ```
 
 
@@ -132,12 +167,12 @@ pod install
 ```
 #1 添加文件并更新
 添加完成后
-在目录 ../LCCommon/Example下执行 pod install  更新Example项目中的pod 出现提示成功字样 该步完成
+在目录 ../XYUIKit/Example下执行 pod install  更新Example项目中的pod 出现提示成功字样 该步完成
 
     
-#2 修改 LCCommon.podspec文件
-找到LCCommon.podspec文件 进行修改 s.version的值
-在目录 ../LCCommon下执行pod lib lint 进行验证 出现成功字样 该步完成
+#2 修改 XYUIKit.podspec文件
+找到XYUIKit.podspec文件 进行修改 s.version的值
+在目录 ../XYUIKit下执行pod lib lint 进行验证 出现成功字样 该步完成
 
 
 #3 推送到远程并更新tag
@@ -147,13 +182,13 @@ git push
 git tag 0.1.1   //tag值要与s.version一致
 git push --tags //
 
-在目录../LCCommon下执行：
+在目录../XYUIKit下执行：
 pod spec lint //有警告的话可以加上 --allow-warnings 来忽略警告
 校验spec 出现成功提示该步完成，出现错误重新执行该步骤
 
 
 #4 更新本地索引库
-pod repo push LCCommonSpec LCCommon.podspec
+pod repo push XYAppMobileSpec XYUIKit.podspec
 
 ```
 
@@ -196,7 +231,7 @@ dependency：依赖的三方库
 
 ```
 #该行会影响子目录的文档结构 要与subspec配合使用
-s.source_files = 'LCCommon/Classes/**/*'
+s.source_files = 'XYUIKit/Classes/**/*'
 
 s.subspec 'TestC' do |testc|
 testc.source_files = 'Test/TestC/*.{h,m}'
@@ -235,6 +270,12 @@ end
 5、执行指定的
     pod 'lklZFWxSDK', :path => '../'
 ```
+
+
+
+
+
+
 
 ----------
 >  行者常至，为者常成！
