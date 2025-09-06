@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "cocoaPods（五）：CocoaPods再整理"
-date: 2019-02-05
+title: "cocoaPods（六）：遇到的问题"
+date: 2019-02-06
 description: ""
 tag: CocoaPods
 --- 

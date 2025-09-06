@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "cocoaPods（八）：多种集成方式"
-date: 2019-02-08
+title: "cocoaPods（三）：多种集成方式"
+date: 2019-02-03
 description: ""
 tag: CocoaPods
 ---
