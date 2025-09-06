@@ -1,192 +1,154 @@
 ---
 layout: post
-title: "cocoaPods（六）：遇到的问题"
+title: "cocoaPods（六）：遇到的问题建"
 date: 2019-02-06
 description: ""
 tag: CocoaPods
---- 
-
+---
 
 
 
 ## 目录
-* [pod 常用命令](#content1)
-* [使用的经验](#content2)
-* [Cocoapods 私有库搭建和使用](#content3)
-* [将公开库私有化](#content4)
+* [pod install 时报错](#content1)
+* [私有库验证错误](#content2)
+* [将公开库私有化](#content3)
 
 
+## <a id="content1">pod install 时报错</a> 
 
 
-rvm(ruby管理器) -> ruby(ruby环境) -> gem(包管理器) -> cocoapods <br>
-cocoapods 用哪个gem安装的,就要用哪个gem进行更新和卸载
+#### **一、模拟器SDK引起的问题**
 
+私有库添加CTMediator依赖后，报错   
 
-<!-- ************************************************ -->
-## <a id="content1"></a> pod 常用命令
-
-1、安装完成后查看pod版本
-```
-pod --version
+```text
+clang: error: SDK does not contain 'libarclite' at the path '.../libarclite_iphonesimulator.a'; 
+try increasing the minimum deployment target
 ```
 
-2、查看pod有哪些命令
-```
-pod 或者 pod --help
-```
+**问题原因**
 
-3、常用的命令
-```
-#init          Generate a Podfile for the current directory
-pod init
+CTMediator 是 Objective-C 库，使用 ARC，需要 libarclite 支持。
 
-# search        Search for pods
-pod search AFN
+Xcode 14+ 模拟器 SDK 移动或优化了 libarclite 位置，低 Deployment Target（比如 iOS 8/9）会找不到它。
 
-# install       Install project dependencies according to versions from a Podfile.lock
-pod install 
+arm64 模拟器 上更严格，因为 M1/M2 Mac 模拟器默认使用 arm64，而 libarclite 不支持太低的 target。
 
-# update        Update outdated project dependencies and create new Podfile.lock
-# 该指令会先更新本地的索引仓库
-pod update
+总结：问题是最低 Deployment Target 太低导致模拟器 arm64 架构链接失败。
 
-# setup         Set up the CocoaPods environment
-pod setup
+**解决办法**
 
-# repo          Manage spec-repositories
-pod repo --help
-```
+提升并统一所有target的 Deployment Target 版本    
 
+```Ruby
+platform :ios, '11.0' # 所有 target 默认 iOS 11.0
+use_frameworks!
 
-<!-- ************************************************ -->
-## <a id="content2"></a> 使用的经验
+target 'XYObject_Example' do
+  pod 'XYObject', :path => '../'
+  pod 'XYUIKit', :path => '../XYUIKit'
+end
 
+target 'AppTests' do
+  inherit! :search_paths
+end
 
-1、切换gem源
-```
-# 切换 Ruby Gem 源到 https://gems.ruby-china.com 主要是为了优化 Ruby Gem 工具和 Ruby 相关库的下载速度和稳定性，
-# 对 CocoaPods 的影响非常有限
-# https://rubygems.org/
-# https://gems.ruby-china.com
-gem sources --add https://gems.ruby-china.com
-gem sources -r https://rubygems.org/
-```
+# 如果 Podfile 中有很多 target，可以用 post_install 遍历修改 Deployment Target：
+# 无论多少 target、Pod，都能统一 Deployment Target
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+    end
+  end
+end
 
-2、cocoapods的源
-```
-# CocoaPods 已不再推荐使用这个源 https://github.com/CocoaPods/Specs.git
-# 推荐使用 https://cdn.cocoapods.org/ 不指定源的情况下,pod install 默认使用这个源
-# pod repo 指令可以查看使用的所有的源
-pod repo 
 ```
 
 
-3、版本问题
-```
-#主工程最低支持版本 + pod工程最低支持版本 + podfile内指定的版本 要一致
-#当编译不过去的时候可以检查下是否是版本问题
-可以在pofile文件中统一所有target的最低支持版本,然后pod install
-```
+#### **二、最低版本设置引起的问题**   
 
+主工程最低支持版本 + pod工程最低支持版本 + podfile内指定的版本 要一致     
+当编译不过去的时候可以检查下是否是版本问题    
+可以在pofile文件中统一所有target的最低支持版本,然后pod install    
 
-4、搜索一个三方库
-```
-在cocoapods的官网搜索:https://cocoapods.org/
-pod search 搜索
-```
-
-<!-- ************************************************ -->
-## <a id="content3"></a> Cocoapods 私有库搭建和使用
+**解决方案**   
+同上    
 
 
 
-#### 一、原理
-```
-两个仓库:
-一个三方仓库:存放podspec文件,这个文件用于描述三方库
-一个三方库:源码仓库
 
-三个文件
-podspec
-podfile
-podfile.lock
-```
+## <a id="content2">私有库验证错误</a>
 
 
-#### 二、Cocoapods 私有库搭建
-##### 1、创建索引仓库
-```
-    1.创建私有源仓库
-        一个存放spec文件的git仓库，这个仓库可以存放多个pod的spec文件
-        https://e.coding.net/lxy911/xyappmobilespec/XYAppMobileSpec.git
 
-    2.将私有源仓库克隆到本地
-        pod repo add XYAppMobileSpec https://e.coding.net/lxy911/xyappmobilespec/XYAppMobileSpec.git
-        会在~/.cocoapods/repo目录下增加一个XYAppMobileSpec目录，
-        存放的是各个pod的spec文件，spec文件是按tag整理的
-        
-    3.更新本地的源仓库
-        pod repo update //更新所有的源仓库
-        pod repo update XYAppMobileSpec // 更新特定的源仓库
-```
-
-##### 2、创建代码仓库
-```
-    1.创建一个新的pod组件
-        pod lib create XYSRequest
-        修改spec文件的基本信息
-            说明配置，homepage配置，source配置
-            组件版本配置
-            在工程中将swift_version 设置成5,在podspec文件中也设置s.swift_version = '5'
-            设置工程中的最低依赖版本
-
-    2.代码仓库创建
-        创建一个用于存放代码的仓库，关联本地仓库与远端仓库。注意:master分支和main分支的问题
-        git remote add https://e.coding.net/lxy911/xysrequest/XYSRequest.git
-        // 根据情况修改分支名
-        git branch -M main
-        git push -u origin main
-        组件代码修改好后，提交到仓库
-
-    3.打tag
-        git tag '0.1.0' // tag一定要跟spec中指定的版本号一致
-        git push --tags
-
-
-    4.验证
-        # 验证是否符合cocoapods规范
-        pod lib lint
-        验证完成之后会有提示:XYSRequest passed validation.
-
-        # 验证文件podspec
-        // 需要先推送tag才能验证过去，否则可能出现错误
-        // 如果不先推送tag查找的是上个版本的spec文件
-        pod spec lint   
-        成功有提示:XYSRequest.podspec passed validation.
-
-
-    5.推送到索引仓库
-        # 将spec文件提交到远程索引仓库
-        pod repo push XYAppMobileSpec XYSRequest.podspec
-
-        # 成功后可以搜索下
-        pod search XYSRequest
-```
-
-
-##### 3、验证报错问题
 
 [参考文章：CocoaPods 私有库 pod lib lint 踩坑](https://www.jianshu.com/p/71c701649df6)
 
 
-<span style="color:red;font-weight:bold">（1）在验证之前先保证工程能正常的编译和启动起来这样会减少后续验证的错误</span>
+#### **一、验证报错问题**
 
-<span style="color:red;font-weight:bold">（2）在验证阶段会有很多警告导致验证失败，可以使用 --allow-warnings 忽略警告</span>
+<span style="color:red;font-weight:bold">遇到xcode返回错误，可以使用--verbose 来查看验证的详细过程</span>
+```shell
+- ERROR | [iOS] xcodebuild: Returned an unsuccessful exit code. You can use `--verbose` for more information.
+
+#查看报错的具体问题，进行修改
+pod lib lint --verbose
+```
+
+#### **二、因为警告无法验证通过时**    
+
+<span style="color:red;font-weight:bold">在验证之前先保证工程能正常的编译和启动起来这样会减少后续验证的错误</span>
+
+<span style="color:red;font-weight:bold">在验证阶段会有很多警告导致验证失败，可以使用 --allow-warnings 忽略警告</span>
 ```shell
 pod lib lint --allow-warnings
 ```
 
-<span style="color:red;font-weight:bold">（3）在私有库A依赖了私有库B，使用 --sources 来指定私有源</span>
+#### **三、因为未推送tag引起验证无法通过**   
+
+<span style="color:red;font-weight:bold">未推送tag导致的错误</span><br>
+在验证spec的时候xcode报找不到文件的错误，但实际工程中可以找到文件，并且工程可以跑起来。这个错报的莫名其妙。<br>
+原因：podspec文件未打最新的tag并推送到远端，<span style="color:red;font-weight:bold">在验证spec的时候一定要先打tag并推送到远端后再验证</span><br>
+否则会去找上一个版本进行spec lint导致莫名的错误
+```
+//在验证的时候一定要先打tag并推送到远端
+pod spec lint 
+```
+
+
+#### **四、模拟器架构引起的问题**   
+
+我有一个组件库XYUIKit，组件库依赖了CTMediator，我在 pod lib lint --allow-warnings 时报错
+
+```text
+The following build commands failed: Ld /Users/lixiaoyi/Library/Developer/Xcode/DerivedData/App-fobxblfxovnsfearudtzgekfdznk/Build/Intermediates.noindex/Pods.build/Release-iphonesimulator/CTMediator.build/Objects-normal/x86_64/Binary/CTMediator normal x86_64 (in target 'CTMediator' from project 'Pods') Building workspace App with scheme App and configuration Release
+```
+
+
+**问题原因分析**   
+
+pod lib lint 的特点：
+
+会用 Release 配置编译你的库，默认 模拟器 + x86_64 架构
+
+如果依赖的 Pod（比如 CTMediator）没有完全支持模拟器 Release 架构，就会报 Ld x86_64 失败
+
+lint 是临时工程，不会使用你的 Podfile 配置，所以 post_install 配置、EXCLUDED_ARCHS 等不会生效
+
+所以你在本地项目能跑，但 pod lib lint 会失败。
+
+**解决方案**   
+
+```text
+pod lib lint XYUIKit.podspec --allow-warnings --use-libraries --verbose --skip-tests
+```
+
+<span style="color:red;font-weight:bold">注意：pod lib lint 并不需要把组件在模拟器上完全能跑，只要能 解析 podspec、编译通过即可。</span>
+
+**五、不确定，暂存**    
+
+<span style="color:red;font-weight:bold">在私有库A依赖了私有库B，使用 --sources 来指定私有源</span>
 ```
  -> XYUIKit (0.1.0)
     - ERROR | [iOS] unknown: Encountered an unknown error (Unable to find a specification for `XYFoundation` depended upon by `XYUIKit`
@@ -201,35 +163,10 @@ You have either:
 pod lib lint --allow-warnings --sources='https://e.coding.net/lxy911/xyappmobilespec/XYAppMobileSpec.git'
 ```
 
-<span style="color:red;font-weight:bold">（4）遇到xcode返回错误，使用--verbose 来查看具体的问题</span>
-```shell
-- ERROR | [iOS] xcodebuild: Returned an unsuccessful exit code. You can use `--verbose` for more information.
 
-#查看报错的具体问题，进行修改
-pod lib lint --verbose
-```
+## <a id="content4">将公开库私有化</a> 
 
-<span style="color:red;font-weight:bold">（5）未推送tag导致的错误</span><br>
-在验证spec的时候xcode报找不到文件的错误，但实际工程中可以找到文件，并且工程可以跑起来。这个错报的莫名其妙。<br>
-原因：podspec文件未打最新的tag并推送到远端，<span style="color:red;font-weight:bold">在验证spec的时候一定要先打tag并推送到远端后再验证</span><br>
-否则会去找上一个版本进行spec lint导致莫名的错误
-```
-//在验证的时候一定要先打tag并推送到远端
-pod spec lint 
-
-```
-
-
-#### 三、私有库的使用
-在podfile文件中指定使用的版本，执行pod install 操作
-
-会根据指定的版本找到索引仓库中对应的spec文件，根据spec文件的描述下载源码及其依赖库的源码
-
-
-
-
-<!-- ************************************************ -->
-## <a id="content4"></a> 将公开库私有化
+如果遇到公开库有问题，但是官方又没有发布新版本，这时我们自己可以将公开库私有化处理，然后自己维护一个修改后的版本等待官方更新       
 
 一、以AFN为例，创建一个自己的AFNetworking仓库
 ```
@@ -237,7 +174,8 @@ https://e.coding.net/lxy911/xy-app-libs/AFNetworking.git
 ```
 
 二、将官方的afn仓库同步到自己的仓库<br>
-coding在仓库创建完成之后有对应的选项：从其它仓库同步
+coding在仓库创建完成之后有对应的选项：从其它仓库同步    
+若没有对应选项，可以在sourceTree 内直接替换远程仓库的地址     
 
 
 三、编辑spec文件
