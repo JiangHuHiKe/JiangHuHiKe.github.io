@@ -16,8 +16,28 @@ tag: CocoaPods
 
 ## <a id="content1">pod install 时报错</a> 
 
+#### **pod版本冲突引起的问题**      
+```text
+╰─ pod install      
+Analyzing dependencies
+[!] CocoaPods could not find compatible versions for pod "XYUIKit":
+  In snapshot (Podfile.lock):
+    XYUIKit (= 0.0.1)
 
-#### **一、模拟器SDK引起的问题**
+  In Podfile:
+    XYSwift (from `../`) was resolved to 0.1.0, which depends on
+      XYUIKit (= 0.3.0)
+
+Specs satisfying the `XYUIKit (= 0.0.1), XYUIKit (= 0.3.0)` dependency were found, but they required a higher minimum deployment target.
+```
+
+**解决方法**     
+```text
+pod update XYUIKit
+```
+
+
+#### **模拟器SDK引起的问题**
 
 私有库添加CTMediator依赖后，报错   
 
@@ -66,7 +86,7 @@ end
 ```
 
 
-#### **二、最低版本设置引起的问题**   
+#### **最低版本设置引起的问题**   
 
 主工程最低支持版本 + pod工程最低支持版本 + podfile内指定的版本 要一致     
 当编译不过去的时候可以检查下是否是版本问题    
