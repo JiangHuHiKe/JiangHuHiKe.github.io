@@ -239,11 +239,119 @@ Task.detached 适合那种必须完全独立（不跟 UI/主线程挂钩）的�
 **Task {} 是在同步环境里开启一个新的异步任务，可以使用 await，并且可以指定优先级和控制生命周期。**       
 
 
+#### **二、TaskGroup**    
+
+**TaskGroup 的执行机制**   
+
+**1、进入作用域：**    
+写 await withTaskGroup(of: T.self) { group in ... }，编译器建立一个“任务组作用域”。    
+
+**2、添加任务：**    
+调用 group.addTask { ... }，每个子任务都是独立的 Task，继承父任务上下文。    
+
+**3、并行执行：**    
+所有子任务会被调度器并行运行。    
+子任务遇到 await 也会挂起，让调度器切换执行其他任务。      
+
+**4、收集结果：**
+用 for await result in group 迭代子任务的返回值。    
+结果返回顺序 不是添加顺序，而是 完成顺序。    
+或者用 await group.next() 逐个取。    
+
+**5、取消：**
+调用 group.cancelAll()，会给所有未完成的子任务打取消标记。    
+子任务自己检查并响应。   
+
+**6、作用域结束：**    
+离开 withTaskGroup 作用域时，Swift 会自动取消还没完成的子任务，并释放资源。   
+
+
+基本用法1     
+```swift
+func taskUse5 () async {
+    await withTaskGroup(of: String.self) { group in
+        
+        group.addTask {[weak self] in
+            return await self!.fetchData()
+        }
+        
+        group.addTask {[weak self] in
+            return (try? await self!.fetchData(from: "https://example.com")) ?? ""
+        }
+        
+        // 遍历结果（顺序由完成时间决定）
+        for await data in  group {
+            //哪个先完成，先打印哪个
+            print(data)
+        }
+    }
+}
+```
+
+基本用法2：整合数据        
+```swift
+    func taskUse6 () async {
+        let datas = await withTaskGroup(of: String.self) { [weak self] group in
+            
+            group.addTask {[weak self] in
+                return await self!.fetchData()
+            }
+            
+            group.addTask {[weak self] in
+                return (try? await self!.fetchData(from: "https://example.com")) ?? ""
+            }
+                   
+            // 对数据进行统一整合后返回     
+            var temp = []
+            for await data in group {
+                temp.append(data)
+            }
+            return temp
+        }
+                
+        for data in datas {
+            print(data)
+        }
+    }
+```
+
+基本用法3：逐个取数据    
+```swift
+func taskUse7 () async {
+    await withTaskGroup(of: String.self) { group in
+        group.addTask {
+            return await self.fetchData()
+        }
+        
+        group.addTask {
+            return (try? await self.fetchData(from: "http://example.com")) ?? "发生了错误"
+        }
+        
+        
+//            var data = await group.next()
+//            print(data ?? "数据为空")
+//            data = await group.next()
+//            print(data ?? "数据为空")
+//            data = await group.next()
+//            print(data ?? "没有数据了")
+        
+        
+        while group.isEmpty == false {
+            var data = await group.next()
+            print(data ?? "")
+        }
+    }
+}
+
+```
+
+
+
 ## <a id="content3">actor</a>
 
 在 Swift 并发里，Actor 是一种保证“同一时间只允许一个任务访问其内部状态”的**类型**，避免数据竞争。    
 可以理解成：一个 **带有隐式锁** 的对象。    
-<span style="color:red;">xy：actor 是在多线程状态下保证数据安全的一种类型</span>
+<span style="color:red;">xy：actor 是在多任务状态下保证数据安全的一种类型</span>
 
 
 #### **一、MainActor**    
