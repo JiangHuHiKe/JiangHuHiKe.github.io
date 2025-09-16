@@ -52,6 +52,25 @@ func fetchData(from url: String) async throws -> String {
 
 ```
 
+声明两个异步函数，但内部没有挂起逻辑
+
+```swift
+    
+func test () async {
+    print("test方法调用：\(Thread.current)")
+}
+
+
+// 这个是Request类下的实例方法
+    
+func test () async {
+    print("Request().test方法调用：\(Thread.current)")
+}
+
+```
+
+
+
 **调用异步函数**   
 
 ```swift
@@ -114,6 +133,21 @@ func loadData4() async {
 CPU 密集型操作可以在 Task.detached 或 DispatchQueue.global 上执行。   
 IO 密集型操作用 async/await 可以避免线程阻塞。   
 
+**跨类型调用时有一些区别**
+
+跨类型 async 调用：调度器可能选择后台线程执行任务，即使没有真正挂起。
+
+```swift
+func loadData6 () async {
+    await test()
+    await Request().test()
+}
+
+日志输出如下：   
+test方法调用：<_NSMainThread: 0x281d20580>{number = 1, name = main}
+Request().test方法调用：<NSThread: 0x281d70600>{number = 5, name = (null)}
+```
+
 
 #### **四、优势**    
  
@@ -126,19 +160,36 @@ IO 密集型操作用 async/await 可以避免线程阻塞。
 
 ## <a id="content2">Task 与 TaskGroup</a>
 
-在 Swift 并发里，所有异步代码都必须在一个任务（Task）里运行。
-
-Task {} 就是最简单的方式：创建一个新的异步任务。
-
 await 只能出现在 异步上下文（async function） 里。
+
+Task {} 也可以创建一个新的异步任务。
+
+在 Swift 并发里，异步代码可以放在async function，也可以在一个任务（Task）里运行。  
+
+
 
 #### **一、基本用法**
 
+Task 提供了异步环境，函数不需要再声明 async   
 ```swift
-Task {
-    // 这里可以安全写 await
-    let user = try await fetchUser(id: 1)
-    print(user)
+func taskUse1(){
+    Task {
+        do {
+            let data = try await fetchData(from: "http://example.com")
+            print(data)
+        } catch {
+            print("请求失败: \(error)")
+        }
+    }
+}
+```
+
+```swift
+func taskUse2() {
+    Task {
+        let data = try? await fetchData(from: "http://example.com")
+        print(data ?? "发生了错误")
+    }
 }
 ```
 
@@ -148,7 +199,7 @@ Task {
 
 ```swift
 let task = Task {
-    await fetchUser(id: 1)
+   let data = try await fetchData(from: "http://example.com")
 }
 ...
 task.cancel()  // 取消任务
@@ -158,7 +209,7 @@ task.cancel()  // 取消任务
 保存 Task 的引用，可以稍后取消它。<br>适合那种用户离开页面就不需要继续请求的场景。    
 
 
-#### **二、指定优先级**
+**指定优先级**
 
 ```swift
 Task(priority: .high) {
@@ -170,7 +221,7 @@ Task(priority: .high) {
 调度器会尽量先安排高优先级任务。    
 
 
-#### **三、和 Task.detached 的区别**   
+**和 Task.detached 的区别**   
 
 ```swift
 Task {
