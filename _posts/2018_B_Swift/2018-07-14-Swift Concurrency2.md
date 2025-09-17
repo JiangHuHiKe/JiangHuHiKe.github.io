@@ -168,7 +168,7 @@ Task {} 也可以创建一个新的异步任务。
 
 
 
-#### **一、基本用法**
+#### **一、Task 基本用法**
 
 Task 提供了异步环境，函数不需要再声明 async   
 ```swift
@@ -182,12 +182,41 @@ func taskUse1(){
         }
     }
 }
-```
 
-```swift
-func taskUse2() {
+
+// 也可以这么写
+func taskUse1() {
     Task {
         let data = try? await fetchData(from: "http://example.com")
+        print(data ?? "发生了错误")
+    }
+}
+
+```
+
+task.value 等待task执行完成，并获取结果     
+```swift
+func taskUse2() async {
+    let task = Task {
+        let data = try? await fetchData(from: "https://example.com")
+        print(data ?? "发生了错误")
+    }
+    
+    // 等待task执行完成，如果task内部没有返回任何值，那么data就是一个空的元祖
+    let data = await task.value
+    print(data) // ()
+}
+
+
+func taskUse2()  {
+    let task = Task {
+        return try? await fetchData(from: "https://example.com")
+    }
+    
+    // 也可以用另一个Task来提供异步环境
+    Task {
+        // 等待task执行完成，如果task内部有返回值，那么data就是返回的值
+        let data = await task.value
         print(data ?? "发生了错误")
     }
 }
@@ -233,13 +262,37 @@ Task.detached {
 }
 ```
 一般用 Task {} 就够了；   
-Task.detached 适合那种必须完全独立（不跟 UI/主线程挂钩）的后台任务。     
+Task.detached 适合那种必须完全独立（不跟 UI/主线程挂钩）的后台任务。    
+
+
+#### **二、Task 并发**    
+
+```swift
+func taskUse4() async {
+    let task1 = Task {
+        let data = await fetchData()
+        print(data)
+    }
+    
+    let task2 = Task{
+        let data = await fetchData()
+        return data
+    }
+    
+    let data1 = await task1.value // 无返回值 ()
+    let data2 = await task2.value // 有返回值  
+    // 两个任务都完成后会来到这里
+    print(data1, data2) // () 数据加载完成
+}
+```
+
+
 
 ✅ 总结一句话：    
 **Task {} 是在同步环境里开启一个新的异步任务，可以使用 await，并且可以指定优先级和控制生命周期。**       
 
 
-#### **二、TaskGroup**    
+#### **三、TaskGroup 基本用法**    
 
 **TaskGroup 的执行机制**   
 
@@ -249,46 +302,108 @@ Task.detached 适合那种必须完全独立（不跟 UI/主线程挂钩）的�
 **2、添加任务：**    
 调用 group.addTask { ... }，每个子任务都是独立的 Task，继承父任务上下文。    
 
-**3、并行执行：**    
+**3、并行执行：**      
 所有子任务会被调度器并行运行。    
 子任务遇到 await 也会挂起，让调度器切换执行其他任务。      
 
-**4、收集结果：**
+**4、收集结果：**    
 用 for await result in group 迭代子任务的返回值。    
 结果返回顺序 不是添加顺序，而是 完成顺序。    
 或者用 await group.next() 逐个取。    
 
-**5、取消：**
+**5、取消：**    
 调用 group.cancelAll()，会给所有未完成的子任务打取消标记。    
 子任务自己检查并响应。   
 
 **6、作用域结束：**    
-离开 withTaskGroup 作用域时，Swift 会自动取消还没完成的子任务，并释放资源。   
+子任务如果都能正常完成，withTaskGroup 会 等待它们全部完成，然后再退出作用域。      
+如果提前退出作用域（比如 throw 出去，或者 return 提前结束）：    
+Swift 会对所有 还没完成 的子任务调用 取消（group.cancelAll()）。    
+同时也会等待这些子任务响应取消（至少安全退出），然后才真正释放资源。    
 
 
-基本用法1     
+基本用法1:并发执行，离开作用域后，所有任务结束           
+
 ```swift
-func taskUse5 () async {
+func taskGroupUse () async {
+    
+    // Void.self 指示 子任务没有返回值
+    await withTaskGroup(of: Void.self) { group in
+        
+        group.addTask {[weak self] in
+            let data = await self!.fetchData()
+            print(data)
+        }
+        
+        
+        group.addTask {[weak self] in
+            let data = try? await self!.fetchData(from: "https://example.com")
+            print(data ?? "发生了错误")
+        }
+        
+        print("将要离开作用域")
+        // 在离开作用域之前会等待子任务都完成
+    }
+    
+    print("离开作用域")
+    
+    
+    /**
+     
+     将要离开作用域
+     ---发起了fetchData:<_NSMainThread: 0x282014400>{number = 1, name = main}
+     ---发起了fetchData(from:):<_NSMainThread: 0x282014400>{number = 1, name = main}
+     网络数据
+     数据加载完成
+     离开作用域
+     
+     */
+}
+```
+
+基本用法2：子任务带返回值，统一获取返回结果
+```swift
+func taskGroupUse2 () async {
     await withTaskGroup(of: String.self) { group in
-        
         group.addTask {[weak self] in
-            return await self!.fetchData()
+            let data = await self!.fetchData()
+            print(data)
+            return data
         }
         
+        
         group.addTask {[weak self] in
-            return (try? await self!.fetchData(from: "https://example.com")) ?? ""
+            let data = try? await self!.fetchData(from: "https://example.com")
+            print(data ?? "发生了错误")
+            return data ?? "发生了错误"
         }
+
         
         // 遍历结果（顺序由完成时间决定）
         for await data in  group {
             //哪个先完成，先打印哪个
             print(data)
         }
+        print("将要离开作用域")
     }
+    
+    print("离开作用域")
+    
+    
+    /**
+     ---发起了fetchData:<_NSMainThread: 0x281860680>{number = 1, name = main}
+     ---发起了fetchData(from:):<_NSMainThread: 0x281860680>{number = 1, name = main}
+     网络数据
+     网络数据
+     数据加载完成
+     数据加载完成
+     将要离开作用域
+     离开作用域
+     */
 }
 ```
 
-基本用法2：整合数据        
+基本用法3：整合数据        
 ```swift
     func taskUse6 () async {
         let datas = await withTaskGroup(of: String.self) { [weak self] group in
@@ -315,7 +430,7 @@ func taskUse5 () async {
     }
 ```
 
-基本用法3：逐个取数据    
+基本用法4：逐个取数据    
 ```swift
 func taskUse7 () async {
     await withTaskGroup(of: String.self) { group in
