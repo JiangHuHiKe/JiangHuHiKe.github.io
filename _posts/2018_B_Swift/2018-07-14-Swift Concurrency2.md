@@ -627,7 +627,7 @@ Task {
     }
 }
 ```
-**和 GCD 的对比**    
+#### **四、和 GCD 的对比**    
 
 以前我们写：
 
@@ -647,6 +647,35 @@ GCD 是“裸奔”的队列调度，<span style="font-weight:bold;">编译器</
 @MainActor 是 <span style="clor:red;font-weight:bold;color:red;">类型系统</span> 的一部分，编译器能检查你是否在错误的线程访问UI，从而 <span style="font-weight:bold;color:red;">编译时报错</span>（比运行时更安全）。    
 
 
+如果这么写就是正常的
+```swift
+func actorUse4() {
+    let counter2 = Counter2()
+    counter2.increment()
+}
+```
+
+如果这么写编译器就会报错，因为 increment 是在 MainActor 上执行的，不能在后台调用    
+```swift
+func actorUse4() {
+    let counter2 = Counter2()
+
+    Task.detached {   // 👈 这里是后台 Task，不在主线程
+        counter2.increment()  // ❌ 编译错误：MainActor 隔离的函数不能在这里调用
+    }
+}
+```
+
+修改后
+```swift
+func actorUse4() {
+    let counter2 = Counter2()
+
+    Task.detached {   
+        await counter2.increment()
+    }
+}
+```
 
 
 
