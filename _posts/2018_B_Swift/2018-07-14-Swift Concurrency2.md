@@ -469,7 +469,62 @@ func taskUse7 () async {
 <span style="color:red;">xy：actor 是在多任务状态下保证数据安全的一种类型</span>
 
 
-#### **一、MainActor**    
+#### **一、基本用法**    
+
+创建一个actor类型的对象   
+
+```swift
+ actor Counter {
+    private var value = 0
+
+    func increment() {
+        value += 1
+    }
+
+    func getValue() -> Int {
+        return value
+    }
+}
+```
+
+
+
+在多任务状态下使用，可以保证数据的读写安全
+```swift
+func actorUse()  async {
+    let counter = Counter()
+    await withTaskGroup(of: Void.self) { group in
+        group.addTask {
+            print(Thread.current)
+            for _ in 1...1000 {
+                await counter.increment()
+            }
+        }
+        
+        group.addTask {
+            print(Thread.current)
+            for _ in 1...1000 {
+                await counter.increment()
+            }
+        }
+    }
+    
+    let data = counter.getValue()
+    print(data)
+}
+
+
+// 打印结果如下
+<NSThread: 0x281928780>{number = 27, name = (null)}
+<NSThread: 0x281924580>{number = 28, name = (null)}
+2000
+```
+
+可以尝试下把 actor 改为 class，然后再在多任务状态下运行，我们会发现最终打印的结果小于等于2000     
+
+
+
+#### **二、MainActor**    
 
 MainActor 是 Swift 内置的一个 特殊 Actor。    
 它表示 主线程上的执行环境。    
@@ -478,12 +533,6 @@ MainActor 是 Swift 内置的一个 特殊 Actor。
 
 
 **标记函数**
-```swift
-@MainActor
-func updateUI() {
-    label.text = "Hello"
-}
-```
 
 即使你从后台调用，Swift 也会切换到主线程再执行。
 
@@ -494,27 +543,77 @@ func showData() async {
     label.text = result             // 但这里保证在主线程更新 UI
 }
 
-func fetchData() async -> String {
-    "Hello"
-}
 ```
 
 
 
-**标记类 / 结构体**
+**标记类 / 结构体**    
+整个类里的方法都会在主线程执行。       
+很适合标记 UIViewController、ViewModel 等和 UI 相关的对象。   
 
 ```swift
 @MainActor
-class ProfileViewController: UIViewController {
-    func refreshUI() {
-        label.text = "User name"
+class Counter2 {
+    private var value = 0
+
+    func increment() {
+        value += 1
+    }
+
+    func getValue() -> Int {
+        return value
     }
 }
 ```
-整个类里的方法都会在主线程执行。     
-很适合标记 UIViewController、ViewModel 等和 UI 相关的对象。     
 
-**切换到主线程**    
+```swift
+
+func actorUse2 () async {
+    let counter2 = Counter2()
+
+    await withTaskGroup(of: Void.self) { group in
+        group.addTask {
+            print(Thread.current)
+            for _ in 1...1000 {
+                await counter2.increment()
+            }
+        }
+        
+        group.addTask {
+            print(Thread.current)
+            for _ in 1...1000 {
+                await counter2.increment()
+            }
+        }
+    }
+    
+    let data = counter2.getValue()
+    print(data)
+    
+}
+
+// 打印结果如下
+<NSThread: 0x280cde3c0>{number = 27, name = (null)}
+<NSThread: 0x280ccc2c0>{number = 3, name = (null)}
+2000
+```
+
+#### **三、切换到主线程**    
+
+```swift
+func actorUse3 () {
+    Task.detached {
+        print(Thread.current)
+        await MainActor.run {
+            print(Thread.current)
+        }
+    }
+}
+
+// 打印结果如下
+<NSThread: 0x280e2e880>{number = 4, name = (null)}
+<_NSMainThread: 0x280e68400>{number = 1, name = main}
+```
 
 ```swift
 // 启动异步任务
