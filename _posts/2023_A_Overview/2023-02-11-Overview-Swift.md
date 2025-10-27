@@ -20,6 +20,7 @@ tag: Overview
 - [泛型](#content6)   
 - [模式匹配](#content7)   
 - [其它](#content10)   
+- [重要](#content11)   
 
 
 
@@ -1063,6 +1064,205 @@ private func init(){}
 
 
 进度：15-02
+
+
+## <a id="content11">重要</a>
+
+#### **SwiftUI**
+
+**介绍**    
+<span style="color:gray;font-size:12px;">
+是swift推出的一套声明式UI框架，只需要描述界面，而不用关心具体的创建和更新    
+它最大的特点是用状态(数据)驱动界面更新  
+<span>
+
+**它有三个核心概念**    
+<span style="color:gray;font-size:12px;">
+View：界面结构        
+VStack/HStack/ZStack、Text/Button/Image、List/ScrollView、if/ForEach  
+Modifier：修饰符      
+padding/margin、font/backgroundColor     
+State：状态      
+@State、@Binding、@ObserveObject、@EnvironmentObject     
+当数据发生变化时，界面自动更新         
+</span>  
+
+**好处**   
+<span style="color:gray;font-size:12px;">
+代码简洁，可读性高    
+自动响应数据变化，不需要手动更新UI    
+支持跨平台：iOS，macos    
+和swift的combine天然结合，combine的publisher发布数据，swiftui进行订阅，自动刷新界面。并且逻辑和界面进行了解耦，非常清晰   
+</span>
+
+**坏处**   
+<span style="color:gray;font-size:12px;">
+对版本有要求 iOS13以后   
+和UIKit需要桥接   
+</span>
+
+
+
+#### **Combine**    
+
+**介绍**    
+<span style="color:gray;font-size:12px;">
+是swift推出的一套响应式编程框架，它通过发布-过滤-订阅的模式来处理数据。主要用于处理异步数据和UI绑定    
+</span>
+
+**它有三个核心概念**    
+<span style="color:gray;font-size:12px;">
+Publisher、operator、subscribe        
+publisher：用于发布数据，比如网络请求的publisher，通过Future/promise转为Anypublisher、监听的publisher比如监听文本输入框、还有PassthroughSubject/CurrentValueSubject/Just、    
+operator：对数据进行过滤和转换。map(类型映射)、debounce(防抖，搜索框)、throttle(节流，滚动位置上送)、flatMap(串行请求)、zip(并行请求)、filtter    
+subscribe：订阅，对数据进行消费。sink(获取数据和完成事件)、assgin(绑定数据)    
+</span>
+
+**好处**    
+<span style="color:gray;font-size:12px;">
+对kvo，notification等监听机制进行了统一能很好的替换他们，代码不用散落在工程的各处    
+解决了回调地狱的问题，比如一个网络请求依赖另外一个网络请求时可以使用flatMap进行实现    
+并行控制，有多个网络请求都完成时再刷新UI，可以使用zip     
+UI与数据绑定，自动更新UI。天然适配swiftUI和mvvm的设计模式    
+</span>
+
+**坏处**    
+<span style="color:gray;font-size:12px;">
+对版本有要求，iOS13以后。所以对老项目兼容性差    
+语法风格冲突，与常规写法不同，与async和await不兼容需要做转化，有一定的学习成本    
+调试困难，sink收到fail时，调用栈通常已经丢失     
+</span>
+
+**什么情况下适用**    
+<span style="color:gray;font-size:12px;">
+UI数据绑定    
+持续性的数据流：比如防抖和节流   
+复杂的异步依赖，比如串行和并行    
+</span>
+
+
+
+
+#### **async/await、task、actor**     
+
+**介绍**     
+<span style="color:gray;font-size:12px;">
+async/await 让异步代码像同步代码一样书写      
+async：声明一个异步函数    
+await：调用异步函数，等待结果(只能出现在异步上下文里)   
+<br>
+task：创建一个新的异步任务     
+taskGroup：任务组，当多个并发任务都完成时，再统一处理数据    
+<br>
+actor：多任务状态下保证数据安全的一种类型          
+MainActor：特殊的actor，表示在主线程上调用，可以标记方法、类、结构体    
+</span>
+
+
+**好处：**     
+<span style="color:gray;font-size:12px;">
+像写同步代码一样写异步代码，代码结构更清晰
+</span>
+
+
+**坏处：**     
+<span style="color:gray;font-size:12px;">
+对版本有要求，ios15以后
+</span>
+
+
+
+
+#### **常用三方库**     
+
+**Kingfisher**  
+介绍      
+<span style="color:gray;font-size:12px;">
+网络图片加载库，是swift开源库。用于网络图片的下载，具有内存缓存，磁盘缓存的功能。         
+读取顺序是：内存缓存 - 磁盘缓存 - 网络请求   
+与SDWebImage类似，SD是oc代码。    
+</span>
+
+好处    
+<span style="color:gray;font-size:12px;">
+同时它支持一些sd不支持的功能       
+1 webp下载，sd需要额外插件       
+2 支持图片处理，比如圆角滤镜(通过配置一个 imageProcessor对象)。       
+3 支持SwiftUI(通过 KFImage 组件实现)        
+</span>
+
+
+**Snapkit**    
+
+介绍    
+<span style="color:gray;font-size:12px;">
+自动布局框架，是masory的swift版本，用更简洁的方式编写约束
+</span>
+
+主要操作有：    
+<span style="color:gray;font-size:12px;">
+设置约束：view.snp.makeConstraints { make in …   }   
+更新约束：view.snp.updateConstraints { make in … }   
+重置约束：view.snp.reMakeConstraints { make in … }    
+</span>
+
+框架提供了大量的锚点属性    
+<span style="color:gray;font-size:12px;">
+边距：top、bottom、left、right    
+尺寸：width、height    
+居中：center、centerX、centerY    
+</span>
+
+框架提供了相对约束    
+<span style="color:gray;font-size:12px;">
+相对父视图：make.top.equalToSuperview().offset(10)、make.center.equalToSuperview    
+相对兄弟视图：make.top.equalTo(otherView.snp.bottom).offset(10)    
+设置宽高：make.width.height.equalTo(100)     
+</span>
+
+
+**SwiftJson**      
+
+介绍
+<span style="color:gray;font-size:12px;">
+一个用于json解析和数据读取的框架     
+</span>
+
+主要操作
+<span style="color:gray;font-size:12px;">     
+将字符串转为json对象
+</span>
+```swift
+let jsonString = "{\"name\":\"Alex\", \"age\":25}"    
+let json = JSON(parseJSON: jsonString)    
+```
+
+将data转为json对象    
+let data = NSData()    
+let json = try? JSON(data: data)    
+
+可以链式读取    
+let name = json?["data"]["user"]["name"].stringValue ?? ""    
+</span>
+
+好处
+<span style="color:gray;font-size:12px;">
+与codable相比，不需要定义模型，能够容错，key不存在时返回空，不会崩溃
+</span>
+
+适用     
+<span style="color:gray;font-size:12px;">
+快速调试或者类型不确定的三方接口推荐使用SwiftJSON    
+正式开发阶段推荐使用codable进行自定转模型     
+</span>
+
+```swift
+struct T : Codable {}
+let decoder = JSONDecoder()
+let mode = try decoder.decode(T.self, from: responseData)
+```
+
+
 
 
 ----------
