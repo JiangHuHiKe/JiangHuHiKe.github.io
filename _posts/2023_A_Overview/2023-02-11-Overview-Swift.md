@@ -1223,7 +1223,7 @@ MainActor：特殊的actor，表示在主线程上调用，可以标记方法、
 
 **SwiftJson**      
 
-介绍
+介绍       
 <span style="color:gray;font-size:12px;">
 一个用于json解析和数据读取的框架     
 </span>
@@ -1237,20 +1237,27 @@ let jsonString = "{\"name\":\"Alex\", \"age\":25}"
 let json = JSON(parseJSON: jsonString)    
 ```
 
+<span style="color:gray;font-size:12px;">
 将data转为json对象    
+</span>
+```swift
 let data = NSData()    
 let json = try? JSON(data: data)    
+```
 
+<span style="color:gray;font-size:12px;">
 可以链式读取    
-let name = json?["data"]["user"]["name"].stringValue ?? ""    
 </span>
+```swift
+let name = json?["data"]["user"]["name"].stringValue ?? ""    
+```
 
-好处
+好处    
 <span style="color:gray;font-size:12px;">
 与codable相比，不需要定义模型，能够容错，key不存在时返回空，不会崩溃
 </span>
 
-适用     
+适用        
 <span style="color:gray;font-size:12px;">
 快速调试或者类型不确定的三方接口推荐使用SwiftJSON    
 正式开发阶段推荐使用codable进行自定转模型     
