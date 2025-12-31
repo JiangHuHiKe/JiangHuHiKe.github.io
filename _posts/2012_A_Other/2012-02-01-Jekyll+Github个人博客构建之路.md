@@ -89,7 +89,6 @@ jekyll serve
 ### 网站评论与统计
 
 - 首先是网站统计，你需要在<a href="http://tongji.baidu.com/web/register">百度统计</a>和<a href="https://www.google.com/analytics/">Google Analytics</a>注册账号，并提取相应的id（详细操作请baidu or google）例如我的baidu id为e572ae9801b3a18891f123796b889f77，google id为UA-88738012-1，后面会使用。
-- 其次是网站的评论管理系统，~~在<a href="http://duoshuo.com/">多说</a>(点击我要安装)上注册账号，设置域名。比如我的是www.robotkang.duoshuo.com。即多说的用户名为robotkang（后面会用到）~~ 多说已挂！现本网站使用的是Valine评论系统，详情参考：<a href="https://valine.js.org/#/">https://valine.js.org/#/</a>
 
 ### 选择博客模板
 
@@ -128,7 +127,6 @@ jekyll serve
 - ```avatarTitle```：你的头像里的标题
 - ```avatarDesc```：你的头像描述
 - ```url```:改成你的域名
-- ```comment```里的```duoshuo```:改成你的多说的用户名
 - ```social```里面的
 	- ```weibo```：你的微薄id（不是用户昵称）
 	- ```github```：你的github用户名

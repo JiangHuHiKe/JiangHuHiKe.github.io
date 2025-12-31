@@ -4,6 +4,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
+  <meta http-equiv="Content-Security-Policy"
+        content="
+        upgrade-insecure-requests;
+        default-src 'self' https:;
+        script-src 'self' https: 'unsafe-inline';
+        style-src 'self' https: 'unsafe-inline';
+        img-src 'self' https: data:;
+        font-src 'self' https: data:;
+      ">
+
+
   <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
   <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
   <meta name="author" content="robotkang">
@@ -27,8 +38,6 @@
   
   <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
   
-<!-- 自动将http的不安全请求升级为https -->
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
 
 
