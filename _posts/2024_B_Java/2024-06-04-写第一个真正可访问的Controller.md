@@ -12,6 +12,7 @@ tag: Java
 ## 目录
 - [环境配置](#content1)   
 - [创建项目](#content2)   
+- [项目源码](#content3)   
 
 
 
@@ -84,6 +85,25 @@ New Project
 Tomcat started on port(s): 8080
 Started SpringDemoApplication in xxx seconds
 ```
+
+## <a id="content3">项目源码</a>
+
+参考 HelloSpring 项目 代码    
+
+@service：bean对象，spring会管理其生命周期。 <span style="color:red;font-weight:bold;">主要写业务</span>           
+UserServiceImpl implements UserService：会在service和impl之间建立映射关系。       
+@RestController：Web 控制层 + 返回 JSON，同时也是bean对象。<span style="color:red;font-weight:bold;">是url入口</span>     
+@RequestMapping：Controller 级别加统一前缀。这是后台最标准的写法。        
+
+**spring 启动主要做了什么？**    
+
+Spring Boot 启动的本质是：        
+创建一个 Spring 容器 → 把所有 Bean 放进去 → 把 Web / 数据库 / 中间件“接通” → 等待请求
+
+
+
+
+
 
 
 
