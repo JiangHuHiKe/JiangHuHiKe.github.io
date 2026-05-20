@@ -14,6 +14,7 @@ tag: Overview
 
 - [Flutter 与 跨平台](#content1)   
 - [三棵树](#content2)   
+- [重要方法](#content3)   
 
 
 ## <a id="content1">Flutter 与 跨平台</a>
@@ -135,6 +136,34 @@ VSync 到来时提交 Framebuffer 到 Display Controller
 ↓
 屏幕刷新
 ```
+
+## <a id="content3">重要方法</a>
+
+**canUpdate**    
+两个widget运行时类型相同 && key相同。    
+返回ture，element树复用element节点(state也会复用)。   
+返回false时，element树创建新的element节点替换旧的(state也会重新创建)。        
+
+**didUpdateWidget**  
+
+使用场景：外部参数变化，需要同步内部状态。      
+比如：从父组件传入的参数发生变化，重新初始化数据(不能使用initState,只调用一次，element复用不会再次调用)。          
+比如：从父组件传入的参数发生变化，重新请求数据。        
+为什么不能用build？首先build的主要作用是重绘UI。另外build是是高频调用。     
+更新时触发顺序：先调用didUpdateWidget 在调用 build。           
+<span style="color:gray;font-size:12px;">
+触发条件   
+1、父 widget 触发 rebuild       
+2、Flutter 复用旧 Element    
+3、新 widget != old widget（配置发生变化）     
+</span>
+
+**didChangeDependencies**     
+state第一次初始化时会调用。    
+依赖 Theme / MediaQuery / Locale / Provider 的
+
+
+
 
 
 
