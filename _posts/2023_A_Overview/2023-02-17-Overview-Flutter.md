@@ -185,9 +185,26 @@ VSync 到来时提交 Framebuffer 到 Display Controller
 
 ## <a id="content4">key</a>
 
+#### **一、LocalKey**    
+<span style="color:gray;font-size:12px;">
+在实际开发中，大部分不会传入key，是因为页面结构稳定。     
+当页面结构稳定的时候，传入key会增加diff成本，比如需要创建映射的map。     
+当页面结构不稳定的时候，需要传入key，否则会引起页面错乱。    
+比如在index=0位置插入或删除widget，或者交换两个widget。所以动态列表一般要传入key。         
+</span>
 
+<span style="color:red;font-size:12px;">
+Localkey的两个主要作用：        
+canUpdate 方法中使用。     
+按 key 创建 Map。    
+</span>
 
-
+#### **二、GlobalKey**    
+<span style="color:red;font-size:12px;">
+Globalkey的两个主要作用：        
+跨层级获取state，比如在父widget中手动更新子widget(调用子widget中的state的方法)。     
+获取widget的位置和大小。    
+</span>
 
 
 
