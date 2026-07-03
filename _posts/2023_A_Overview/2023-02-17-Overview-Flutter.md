@@ -16,6 +16,7 @@ tag: Overview
 - [三棵树](#content2)   
 - [重要方法](#content3)   
 - [key](#content4)   
+- [状态管理](#content5)   
 
 
 
@@ -205,6 +206,22 @@ Globalkey的两个主要作用：
 跨层级获取state，比如在父widget中手动更新子widget(调用子widget中的state的方法)。     
 获取widget的位置和大小。    
 </span>
+
+
+## <a id="content5">状态管理</a>
+
+#### **一、InheritedWidget**    
+
+ShareDataWidget extends InheritedWidget     
+在页面最外层使用ShareDataWidget，整棵子树共享数据           
+在子组件ShareDataChildWidget使用共享数据：ShareDataWidget.of(context)!.data        
+
+<span style="color:gray;font-size:12px;">
+传入context后，会沿着element树向上寻找ShareDataWidget     
+然后建立 ShareDataWidget  和 ShareDataChildWidget 的映射关系    
+当data发生变化时，会调用 ShareDataChildWidget 的 didChangeDependencies -> build 更新数据   
+</span>
+
 
 
 
