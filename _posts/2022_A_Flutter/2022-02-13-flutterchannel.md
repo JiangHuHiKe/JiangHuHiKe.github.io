@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "13 flutter channel"
+title: "flutter channel"
 date: 2022-02-13
 tag: Flutter
 ---
