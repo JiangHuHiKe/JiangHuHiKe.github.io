@@ -7,6 +7,7 @@ tag: Flutter
 
 ## 目录
 - [介绍](#content1) 
+- [基本使用](#content2) 
 
 
 
@@ -61,6 +62,125 @@ Provider 是状态的定义声明，不是状态本身。
 **5、 Ref**     
 操作状态的核心句柄，重中之重。               
 不再依赖 BuildContext，所有读写、监听、失效都通过 ref。
+
+
+## <a id="content2">基本使用</a>
+
+#### **一、最简单的 Provider：只读数据**    
+
+```dart
+final nameProvider = Provider<String>((ref) {
+  return 'Flutter';
+});
+```
+```dart
+class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // ref.watch(nameProvider)对应以前 Provider 的：context.watch<NameNotifier>()
+    // Riverpod 最大的变化之一是：Provider 不再必须绑定在 Widget Tree 上。
+    final name = ref.watch(nameProvider);
+
+    return Text(name);
+  }
+}
+```
+
+#### **二、StateProvider：简单状态**     
+
+```dart
+final searchProvider = StateProvider<String>((ref) {
+  return '';
+});
+```
+
+```dart
+class ProductPage extends ConsumerWidget {
+  const ProductPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final keyword = ref.watch(searchProvider);
+
+    return Column(
+      children: [
+        Text('搜索：$keyword'),
+
+        ElevatedButton(
+          onPressed: () {
+            ref.read(searchProvider.notifier).state = 'iPhone';
+          },
+          child: const Text('搜索 iPhone'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### **三、NotifierProvider更推荐的状态管理方式**    
+
+```dart
+class CartNotifier extends Notifier<List<String>> {
+
+  @override
+  List<String> build() {
+    return [];
+  }
+
+  void add(String product) {
+    state = [
+      ...state,
+      product,
+    ];
+  }
+
+  void remove(String product) {
+    state = [
+      ...state.where((item) => item != product),
+    ];
+  }
+}
+```
+
+```dart
+final cartProvider =
+    NotifierProvider<CartNotifier, List<String>>(
+  CartNotifier.new,
+);
+```
+
+```dart
+class CartPage extends ConsumerWidget {
+  const CartPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    // 状态变化 → 通知依赖者 → Widget rebuild
+    final cart = ref.watch(cartProvider);
+
+    return Column(
+      children: [
+        Text('商品数量：${cart.length}'),
+
+        ElevatedButton(
+          onPressed: () {
+            ref
+                .read(cartProvider.notifier)
+                .add('iPhone');
+          },
+          child: const Text('加入购物车'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+
 
 
 
