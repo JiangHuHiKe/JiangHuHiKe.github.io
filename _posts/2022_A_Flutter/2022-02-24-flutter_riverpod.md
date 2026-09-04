@@ -180,9 +180,152 @@ class CartPage extends ConsumerWidget {
 }
 ```
 
+#### **四、AsyncNotifierProvider：网络请求**
+
+```dart
+class ProductListNotifier extends AsyncNotifier<List<Product>> {
+  bool mockNetworkError = true;
+
+  Future<List<Product>> fetchProducts() async {
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    // 模拟网络异常
+    if (mockNetworkError) {
+      // 可以抛 Exception，也可以抛自定义异常对象
+      throw Exception("网络请求失败，请检查网络连接");
+    }
+
+    return [
+      Product(id: 1, name: 'iPhone'),
+      Product(id: 2, name: 'MacBook'),
+      Product(id: 3, name: 'iPad'),
+    ];
+  }
+
+
+  
+  @override // 初始化过程中会自动调用
+  Future<List<Product>> build() async {
+    // 在初始化过程中，如果build方法中有错误抛出，会走到AsyncValue的error回调
+    return fetchProducts();
+  }
 
 
 
+  Future<void> reload() async {
+
+    mockNetworkError = false;
+
+    // 初始化状态为loading
+    state = const AsyncLoading();
+
+    // try {
+    //   final result = await fetchProducts();
+    //   state = AsyncData(result);
+    // } catch (e, stackTrace) {
+    //   state = AsyncError(e, stackTrace);
+    // }
+
+    // 这样写相当于，上边的try catch 逻辑
+    state = await AsyncValue.guard(
+          () => fetchProducts(),
+    );
+
+    /*
+    * AsyncLoading会触发RiverpodBody.build()调用
+    * 然后AsyncValue.when(loading,error,data)方法调用
+    * 根据state不同，调用传入的loading方法或者error方法或者data方法
+    *
+    * */
+  }
+}
+```
+
+```dart
+final productListProvider = AsyncNotifierProvider<ProductListNotifier, List<Product>>(ProductListNotifier.new);
+```
+
+```dart
+class RiverpodBody extends ConsumerWidget {
+  const RiverpodBody({super.key});
+
+  @override
+  Widget build( BuildContext context, WidgetRef ref) {
+
+    // xy: ref.watch() -> dependence(依赖绑定) -> A方法 ->  ProductListNotifier.build()
+    // xy:猜测A方法的实现逻辑大概如下：
+    // // 1、初始化状态为loading
+    // state = const AsyncLoading();
+    // // 2、网络请求
+    // try {
+    //   final result = await ProductListNotifier.build();
+    //   // 状态修改为成功
+    //   state = AsyncData(result);
+    // } catch (e, stackTrace) {
+    //   // 状态修改为报错。此处说明初始化时在build中抛出的错误会被捕获，并更新状态
+    //   state = AsyncError(e, stackTrace);
+    // }
+
+    final AsyncValue<List<Product>> products = ref.watch(productListProvider);
+
+    // AsyncValue<List<Product>>
+    // │
+    // ├── loading
+    // ├── error
+    // └── data
+
+    return products.when(
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+
+      error: (error, stack) {
+        return Center(
+          child: Column(children: [
+            Text('加载失败：$error'),
+            TextButton(
+                onPressed: (){
+                  ref.read(productListProvider.notifier)
+                      .reload();
+                },
+                child: const Text("点击刷新")
+            )
+          ],)
+        );
+      },
+
+      data: (list) {
+        return ListView.builder(
+            itemCount: list.length + 1,
+            itemBuilder: (context, index) {
+              if(index < list.length) {
+                return ListTile(
+                  title: Text(list[index].name),
+                );
+              } else {
+                return TextButton(
+                    onPressed: (){
+                      ref.read(productListProvider.notifier)
+                          .reload();
+                    },
+                    child: const Text("点击刷新")
+                );
+              }
+            });
+      },
+    );
+  }
+}
+```
+
+<span style="color:red;">flutter_riverpod其实结构是这三部分：asyncNotifier  + asyncNotifierProvider + consumer(ref)</span>     
+<span style="color:red;">老的provider结构也是这三部分：changeNotifier  + changeNotifierProvider + consumer()</span>    
+<span style="color:red;">它们不同点是asyncNotifierProvider与widget无关，changeNotifierProvider是widget</span>    
 
 
 
