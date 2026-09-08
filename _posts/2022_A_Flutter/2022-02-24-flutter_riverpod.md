@@ -182,6 +182,8 @@ class CartPage extends ConsumerWidget {
 
 #### **四、AsyncNotifierProvider：网络请求**
 
+**不带参数的网络请求**
+
 ```dart
 class ProductListNotifier extends AsyncNotifier<List<Product>> {
   bool mockNetworkError = true;
@@ -245,7 +247,10 @@ class ProductListNotifier extends AsyncNotifier<List<Product>> {
 ```
 
 ```dart
-final productListProvider = AsyncNotifierProvider<ProductListNotifier, List<Product>>(ProductListNotifier.new);
+final productListProvider = AsyncNotifierProvider.autoDispose<
+    ProductListNotifier, 
+    List<Product>
+>(ProductListNotifier.new);
 ```
 
 ```dart
@@ -326,6 +331,119 @@ class RiverpodBody extends ConsumerWidget {
 <span style="color:red;">flutter_riverpod其实结构是这三部分：asyncNotifier  + asyncNotifierProvider + consumer(ref)</span>     
 <span style="color:red;">老的provider结构也是这三部分：changeNotifier  + changeNotifierProvider + consumer()</span>    
 <span style="color:red;">它们不同点是asyncNotifierProvider与widget无关，changeNotifierProvider是widget</span>    
+
+**带参数的网络请求**   
+
+```dart
+/// 参数通过**构造函数**注入（而非 build 的形参），
+/// 在 build 内部直接读取 Notifier 实例字段即可。
+class ProductDetailNotifier extends AsyncNotifier<Product> {
+  ProductDetailNotifier(this.productId);
+
+  int productId;
+
+  @override
+  Future<Product> build() async {
+    debugPrint('开始请求商品：$productId');
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    return Product(
+      id: productId,
+      name: '商品 $productId',
+    );
+  }
+
+  Future<void> reload(int productId) async {
+    state = const AsyncLoading();
+    this.productId = productId;
+    state = await AsyncValue.guard((){
+      return build();
+    });
+  }
+}
+```
+```dart
+/// AsyncNotifierProvider.family 的 create 函数签名为
+/// `NotifierT Function(ArgT arg)`，即接收 family 参数并返回 Notifier 实例。
+/// Riverpod 内部会用 family 调用时传入的参数调用此函数，
+/// 再由返回的 Notifier 调用无参 build()。
+final productDetailProvider = AsyncNotifierProvider.family.autoDispose<
+    ProductDetailNotifier,
+    Product,
+    int
+>(ProductDetailNotifier.new);
+```
+
+```dart
+// 在此处传递实参
+// Dart 可调用对象 `call()` 语法基础
+// Dart 中，如果一个类实现了 `call` 方法，该类的实例可以直接像函数一样加括号调用。
+// productFutureProvider(20) 等价于 productFutureProvider.call(20)
+final AsyncValue<Product> product = ref.watch(productDetailProvider(20));
+
+// 注意要想找到之前的notifier,必须productDetailProvider(20)
+// 如果写成ref.read(productDetailProvider(30)，页面没有反应。
+ref.read(productDetailProvider(20).notifier).reload(30);
+```
+
+#### **五、FutureProvider**
+
+适应于简单的一次性异步，只读，无手动刷新 / 复杂逻辑
+<span style="color:red;">futureProvider 是没有notifier的，所以他没法写复杂逻辑</span>
+**不带参数**    
+```dart
+final productFutureProvider = FutureProvider.autoDispose<Product>((ref) async {
+  // autoDispose：页面销毁自动释放资源，防止内存泄漏
+  // 模拟异步请求：模拟网络接口，2秒延迟，随机抛出错误演示异常场景
+  await Future.delayed(const Duration(seconds: 2));
+
+  // 模拟50%概率报错，测试error分支
+  final bool mockError = DateTime.now().millisecond % 2 == 0;
+  if (mockError) {
+    throw Exception("网络请求失败，请稍后重试");
+  }
+
+  // 模拟接口返回数据
+  return Product(id: 1, name: 'iPhone');
+});
+```
+
+**带参数**     
+```dart
+final productFutureProvider = FutureProvider.family.autoDispose<
+    Product, 
+    int
+>((ref, int productId) async {
+  await Future.delayed(const Duration(seconds: 2));
+
+  final bool mockError = DateTime.now().millisecond % 2 == 0;
+  if (mockError) {
+    throw Exception("网络请求失败，请稍后重试");
+  }
+
+  return Product(id: productId, name: 'iPhone');
+});
+```
+
+```dart
+// 强制刷新逻辑，带参数和不带参数都用这个
+ref.invalidate(productFutureProvider);
+
+// 注意：带参数的刷新逻辑不能写成
+ref.invalidate(productFutureProvider(20));
+```
+
+
+read / watch / listen 
+
+autoDispose
+
+consumerWidget  consumer()
+
+
 
 
 
