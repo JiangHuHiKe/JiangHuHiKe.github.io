@@ -8,6 +8,7 @@ tag: Flutter
 ## 目录
 - [介绍](#content1) 
 - [基本使用](#content2) 
+- [关键配置](#content3) 
 
 
 
@@ -435,15 +436,48 @@ ref.invalidate(productFutureProvider);
 // 注意：带参数的刷新逻辑不能写成
 ref.invalidate(productFutureProvider(20));
 ```
+## <a id="content3">关键配置</a>
 
+#### **一、autoDispose**    
 
-read / watch / listen 
+autoDispose 修饰符控制 Provider 的生命周期：没有监听者时，autoDispose 版本会自动销毁 Notifier + 释放状态；    
+不带 autoDispose 的会永久缓存状态，常驻内存。     
 
-autoDispose
+|特性|	AsyncNotifierProvider.autoDispose	|AsyncNotifierProvider（不带）|
+|生命周期|	当没有任何 ref.watch/ref.listen监听它时，自动 dispose，销毁 Notifier 实例，清空 state	|一旦初始化，永久保存在内存，即使页面销毁、没有监听者，状态仍然保留|
+|再次进入页面|	重新执行 build()，重新请求接口，数据刷新	|复用上次缓存好的旧 state，不会重新请求|
+|资源清理|	ref.onDispose 回调会执行，可以取消请求、关闭流、清理定时器	|页面退出后资源不会自动清理，容易内存泄漏|
+|适用场景|	页面独有的列表、分页、详情页数据（离开页面就丢弃）|	全局状态：登录信息、App 全局配置，需要跨页面缓存|
+|内存|	省内存，页面销毁释放资源|	常驻内存，适合全局共享状态|
 
-consumerWidget  consumer()
+**选型建议**    
+✅ 页面私有列表、分页、详情页、搜索结果 → 优先 autoDispose        
+✅ 全局状态（登录 token、主题、全局基础字典）→ 不用 autoDispose         
 
+#### **二、read / watch / listen**      
 
+|API	|作用|	触发重建	|使用位置	|典型场景|
+|ref.read(provider)|	获取 provider当前快照，只执行一次|	❌ 不重建|	点击回调、函数内部（不要在 build 直接写）|	按钮点击触发加载、调用 notifier 方法|
+|ref.watch(provider)|	持续订阅 provider，状态一变，重建当前所在 widget|	✅ 自动重建|	在 build 里	|根据状态渲染 UI（加载中、错误、列表数据）|
+|ref.listen(provider, (prev, next)=>{})|	持续订阅 provider，状态变化执行回调	|❌ 不重建当前	|在 build 里 	|捕获状态变化做副作用：弹出提示、跳转页面、打印日志|
+
+#### **三、consumer相关**   
+
+|名称|		ref 位置	|重建范围|	适用场景|
+|ConsumerWidget|		build 入参WidgetRef ref|	整个组件全部重建	|小型无状态组件、列表 Item|
+|ConsumerStatefulWidget|	state 内部直接访问 ref	|整个 State 组件重建	|需要 initState/dispose，同时依赖 riverpod。<br>比如输入框要维护自己的controller|
+|Consumer|		builder 参数	仅 Consumer 内部 builder |重建，外层不动	|大页面局部 UI 优化，隔离重建范围|
+|selector|		配合 watch	|只有选中的片段变化才重建	|大状态对象，组件只需要其中部分字段|
+
+**selector 在 flutter_riverpod中怎么做？**   
+
+```dart
+final name = ref.watch(
+  userProvider.select(
+    (user) => user.name,
+  ),
+);
+```
 
 
 
