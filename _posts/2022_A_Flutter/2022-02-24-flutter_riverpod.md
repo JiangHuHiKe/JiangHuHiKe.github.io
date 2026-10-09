@@ -36,9 +36,9 @@ provider 之间可以灵活组合复用。
 
 **1、ProviderScope**        
 状态根容器，整个 Riverpod 的入口     
-作用：存放所有 provider 的实例、缓存、状态；替代旧 provider 把状态挂在 Widget 树（InheritedWidget）的方式。
-使用：必须包裹 MaterialApp；支持嵌套，实现局部状态隔离（弹窗、子页面独立状态）。    
-注意：ProviderScope 以外无法访问任何 provider。     
+作用：存放所有 provider 的实例、缓存、状态；替代旧 provider 把状态挂在 Widget 树（InheritedWidget）的方式。   
+使用：必须包裹 MaterialApp；支持嵌套，实现局部状态隔离（弹窗、子页面独立状态）。      
+注意：ProviderScope 以外无法访问任何 provider。      
 
 
 **2、Provider（各类状态提供者）**    
