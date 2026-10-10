@@ -9,6 +9,7 @@ tag: Flutter
 - [介绍](#content1) 
 - [基本使用](#content2) 
 - [关键配置](#content3) 
+- [最佳实践](#content4) 
 
 
 
@@ -437,13 +438,6 @@ ref.invalidate(productFutureProvider);
 ref.invalidate(productFutureProvider(20));
 ```
 
-#### **六、如何选型**
-
-|        | 不需要业务修改          | 需要业务修改                  |
-| ------ | ---------------- |-------------------------|
-| **同步** | `Provider`       | `NotifierProvider`      |
-| **异步** | `FutureProvider` | `AsyncNotifierProvider` |
-
 
 ## <a id="content3">关键配置</a>
 
@@ -488,6 +482,25 @@ final name = ref.watch(
 );
 ```
 
+## <a id="content4">最佳实践</a>
+
+#### **一、如何选型**
+
+|        | 不需要业务修改          | 需要业务修改                  |
+| ------ | ---------------- |-------------------------|
+| **同步** | `Provider`       | `NotifierProvider`      |
+| **异步** | `FutureProvider` | `AsyncNotifierProvider` |
+
+
+#### **二、一个页面有两个接口，如何使用**   
+比如：商品详情页面有商品详情和评论列表。      
+
+|对比项|	两个 Provider|	一个 Provider|
+|数据结构|	分别管理|	封装成一个整体，两个接口请求在Repository处理成并行|
+|加载状态|	相互独立，页面监听两个ref|	共享一个整体状态|
+|一个接口失败|	另一个仍可正常展示|	整体可能进入错误状态|
+|独立刷新|	很方便|	需要单独设计刷新逻辑|
+|适合场景|	独立模块、独立区域|	强关联的整体数据|
 
 
 
