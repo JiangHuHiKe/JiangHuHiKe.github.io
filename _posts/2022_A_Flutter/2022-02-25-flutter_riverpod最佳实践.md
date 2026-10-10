@@ -1,21 +1,17 @@
 ---
 layout: post
-title: "flutter_riverpod最佳实践"
+title: "go_router"
 date: 2022-02-25
 tag: Flutter
 ---
 
 ## 目录
-- [如何选型](#content1) 
+- [介绍](#content1) 
 
 
-## <a id="content1">如何选型</a>
+## <a id="content1">介绍</a>
 
 
-|        | 不需要业务修改          | 需要业务修改          |
-| ------ | ---------------- | --------------- |
-| **同步** | `Provider`       | `Notifier`      |
-| **异步** | `FutureProvider` | `AsyncNotifier` |
 
 
 

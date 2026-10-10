@@ -436,6 +436,15 @@ ref.invalidate(productFutureProvider);
 // 注意：带参数的刷新逻辑不能写成
 ref.invalidate(productFutureProvider(20));
 ```
+
+#### **六、如何选型**
+
+|        | 不需要业务修改          | 需要业务修改                  |
+| ------ | ---------------- |-------------------------|
+| **同步** | `Provider`       | `NotifierProvider`      |
+| **异步** | `FutureProvider` | `AsyncNotifierProvider` |
+
+
 ## <a id="content3">关键配置</a>
 
 #### **一、autoDispose**    
