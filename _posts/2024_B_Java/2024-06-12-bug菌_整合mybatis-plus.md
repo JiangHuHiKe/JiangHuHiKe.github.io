@@ -71,6 +71,41 @@ Wrapper 基础说明
 
 ## <a id="content3">MyBatis-Plus的自定义SQL操作</a>
 
+#### **一、介绍下@select注解**     
+
+`@select` 注解用于在 MyBatis-Plus 中定义 SQL 查询语句。    
+它的作用是把一个 SQL 语句映射到一个方法上，当调用这个方法时，会自动执行对应的 SQL 语句。    
+
+@select的用法：
+```java
+// 传参为String、Long、Integer 类型
+// @Param("userId")的作用是 将Long userId 与 #{userId} 进行绑定
+@Select("select * from user where id = #{userId}")
+User getUserByIdWithZhuJie(@Param("userId") Long userId);
+
+
+// 传参为 Object 类型
+@Select("select * from user u  where u.sex = #{queryUser.sex} and u.age = #{queryUser.age}")
+List<User> getUsersByQueryUserWithZhuJie(@Param("queryUser") QueryUser queryUser);
+```
+
+
+#### **二、参数类型**     
+
+注解方式和 XML 方式都支持下面所有参数类型，区别只在于写法。    
+
+| 参数类型 | 注解方式写法 | XML 方式写法 | 使用场景 |
+| --- | --- | --- | --- |
+| 基本参数（单个） | `@Param("name") String name` | `#{name}` | 按单个值查询：根据 id 查详情、根据用户名判断是否重复 |
+| POJO / 实体对象 | 直接传实体，用 `#{属性名}` 取值 | 同左 | 新增、按实体字段更新：字段多时不用逐个传参 |
+| Map 参数 | 传 `Map<String, Object>`，用 `#{key}` 取值 | 同左 | 动态多条件查询：查询条件个数和字段不固定 |
+| 多个独立参数 | 每个参数加 `@Param("arg1")` | `#{arg1}` | 少量固定参数：如按用户名 + 状态两个条件查询 |
+| 集合 / List 参数 | `@Param("ids") List<Integer> ids` | 配合 `<foreach>` 遍历 | `in` 查询、批量操作：按一批 id 查询或删除 |
+| 数组参数 | `@Param("ids") Long[] ids` | 配合 `<foreach>` 遍历 | 调用方本身持有数组、不想再转 List 时使用 |
+| `Map<String, Collection>` | 传嵌套 Map | 双层 `<foreach>` 遍历 | 一次传多组集合：如按多个分组分别批量查询，实际较少用 |
+
+只有一个参数时 `@Param` 可以省略；   
+有多个参数时建议都加 `@Param`，否则只能用 `arg0`、`param1` 这类默认名引用。      
 
 
 ## <a id="content4">MyBatis-Plus的自动生成骨架代码</a>
